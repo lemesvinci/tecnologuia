@@ -1,0 +1,15 @@
+# Dependências
+node_modules/
+
+# Arquivos gerados
+dist/
+
+# Banco de dados SQLite
+tecnologuia.db
+
+# Arquivos de ambiente
+.env
+
+# Logs
+npm-debug.log*
+debug.log*
