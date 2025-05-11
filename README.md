@@ -49,35 +49,6 @@ O projeto foi desenvolvido com um frontend em **React** e um backend em **Node.j
 
 ---
 
-## 📂 **Estrutura do Projeto**
-tecnologuia/
-├── backend/                    # Código do backend
-│   ├── src/
-│   │   ├── config/             # Configurações (banco, email, etc.)
-│   │   ├── controllers/        # Lógica dos endpoints
-│   │   ├── middleware/         # Middlewares (ex.: autenticação)
-│   │   ├── routes/             # Definição das rotas da API
-│   │   └── index.ts            # Arquivo principal do backend
-│   ├── .env                    # Variáveis de ambiente
-│   ├── package.json
-│   └── tsconfig.json
-├── frontend/                   # Código do frontend
-│   ├── src/
-│   │   ├── components/         # Componentes reutilizáveis
-│   │   ├── contexts/           # Contextos (ex.: AuthContext)
-│   │   ├── pages/              # Páginas do site
-│   │   ├── config/             # Configurações (ex.: API URL)
-│   │   ├── App.tsx             # Componente principal
-│   │   ├── index.tsx           # Entry point
-│   │   └── index.css           # Estilos globais
-│   ├── public/                 # Arquivos estáticos
-│   ├── .env                    # Variáveis de ambiente
-│   ├── package.json
-│   └── tsconfig.json
-└── README.md                   # Documentação do projeto
-
----
-
 ## 🚀 **Como Rodar o Projeto**
 
 ### **Pré-requisitos**
