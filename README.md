@@ -17,31 +17,39 @@ Plataforma para aprendizado e compartilhamento de conhecimento em tecnologia.
 ### Backend
 
 1. Navegue até a pasta do backend:
+
    ```bash
+
    cd backend
 
 Instale as dependências:
+
 bash
 
 npm install
 
 Inicie o servidor em modo de desenvolvimento:
+
 bash
 
 npm run dev
 
 Frontend
+
 Navegue até a pasta do frontend:
+
 bash
 
 cd frontend
 
 Instale as dependências:
+
 bash
 
 npm install
 
 Inicie o servidor em modo de desenvolvimento:
+
 bash
 
 npm run dev
@@ -54,6 +62,7 @@ O frontend roda na porta 5173 por padrão (http://localhost:5173).
 Acesse o frontend no navegador e interaja com a aplicação.
 
 Funcionalidades
+
 Cadastro e login de usuários
 
 Gerenciamento de perfil
@@ -65,8 +74,11 @@ Páginas de conteúdo sobre Hardware, Programação, Mobile, Cursos, Notícias e
 Lista de usuários (apenas para administradores)
 
 Contribuição
+
 Sinta-se à vontade para abrir issues ou enviar pull requests para melhorar o projeto!
+
 Licença
+
 Este projeto está licenciado sob a Licença MIT.
 
 ### **Adicionar e Enviar o `README.md`**
@@ -76,11 +88,13 @@ Este projeto está licenciado sob a Licença MIT.
    git add README.md
 
 Faça o commit:
+
 bash
 
 git commit -m "Adiciona README com instruções do projeto"
 
 Envie para o GitHub:
+
 bash
 
 git push origin main
