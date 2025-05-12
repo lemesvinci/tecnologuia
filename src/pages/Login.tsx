@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // frontend/src/pages/Login.tsx
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { LogIn, AlertCircle } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import FormInput from "../components/ui/FormInput";
@@ -20,7 +21,6 @@ interface FormErrors {
 }
 
 const Login = () => {
-  const navigate = useNavigate();
   const { login } = useAuth();
   const [formData, setFormData] = useState<FormData>({
     email: "",
@@ -66,7 +66,7 @@ const Login = () => {
     setIsLoading(true);
     try {
       await login(formData.email, formData.password);
-      windows.location.href = ("/home");
+      window.location.href = ("/home");
     } catch (error: any) {
       setErrors({
         general: error.message || "Falha no login. Verifique suas credenciais.",
@@ -90,12 +90,12 @@ const Login = () => {
       });
       setForgotMessage(response.data.message);
       setErrors({});
-    } catch (error: any) {
-      setErrors({
-        general:
-          error.response?.data.message ||
-          "Erro ao enviar email de redefinição.",
-      });
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.data?.message) {
+        setErrors({ general: error.response.data.message });
+      } else {
+        setErrors({ general: "Erro ao enviar email de redefinição." });
+      }
       setForgotMessage(null);
     }
   };

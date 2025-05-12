@@ -64,9 +64,11 @@ const ResetPassword = () => {
       setSuccess(response.data.message);
       setErrors({});
       setTimeout(() => navigate("/login"), 2000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setErrors({
-        general: error.response?.data.message || "Erro ao redefinir senha.",
+        general: axios.isAxiosError(error) && error.response?.data.message
+          ? error.response.data.message
+          : "Erro ao redefinir senha.",
       });
       setSuccess(null);
     } finally {

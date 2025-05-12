@@ -50,7 +50,8 @@ const initTables = async () => {
         location TEXT,
         occupation TEXT,
         bio TEXT,
-        role TEXT DEFAULT 'user'
+        role TEXT DEFAULT 'user',
+        reset_token TEXT,
       );
     `);
     await db.none(`

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // backend/src/controllers/commentController.ts
 import { Request, Response, NextFunction } from "express";
 import db from "../config/database";
