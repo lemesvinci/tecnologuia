@@ -1,36 +1,37 @@
-// backend/src/config/database.ts
 import pgPromise from "pg-promise";
 import dotenv from "dotenv";
 
-// carrega variáveis do .env
+// Carrega variáveis do .env
 dotenv.config();
 
-// inicializa o pg-promise
+// Inicializa o pg-promise
 const pgp = pgPromise();
 
-// configurações do banco
+// Configurações do banco usando connection string
 const dbConfig = {
-  host: process.env.PG_HOST || "localhost",
-  port: parseInt(process.env.PG_PORT || "5432", 10),
-  database: process.env.PG_DATABASE || "tecnologuia",
-  user: process.env.PG_USER || "postgres",
-  password: process.env.PG_PASSWORD || "admin",
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
 };
 
-// cria conexão
+// Valida a presença de DATABASE_URL
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL não está definido nas variáveis de ambiente");
+}
+
+// Cria conexão
 const db = pgp(dbConfig);
 
-// testa conexão
+// Testa conexão
 db.connect()
   .then((obj) => {
     console.log("Conectado ao PostgreSQL!");
-    obj.done(); // fecha a conexão imediatamente
+    obj.done(); // Fecha a conexão imediatamente
   })
-  .catch((err: Error) => {
+  .catch((err) => {
     console.error("Erro ao conectar ao banco:", err.message || err);
   });
 
-// cria as tabelas, se ainda não existirem
+// Cria as tabelas, se ainda não existirem
 const initTables = async () => {
   try {
     await db.none(`
@@ -63,9 +64,9 @@ const initTables = async () => {
   }
 };
 
-// executa ao inicializar
+// Executa ao inicializar
 initTables();
 
-// exporta conexão e pgp
+// Exporta conexão e pgp
 export default db;
 export { pgp };

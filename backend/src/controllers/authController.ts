@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import db, { pgp } from "../config/database";
+import { sendResetPasswordEmail } from "../config/email";
 
 const JWT_SECRET = process.env.JWT_SECRET || "segredo_jwt";
 
@@ -77,6 +78,8 @@ export const login = async (
 ): Promise<void> => {
   const { email, password } = req.body;
 
+  console.log("Tentando login com:", { email });
+
   if (!email || !password) {
     res.status(400).json({ message: "Preencha todos os campos" });
     return;
@@ -88,6 +91,7 @@ export const login = async (
       [email]
     );
 
+    console.log("Usuário encontrado:", user ? "Sim" : "Não");
     if (!user) {
       res.status(400).json({ message: "Email ou senha incorretos" });
       return;
@@ -108,6 +112,7 @@ export const login = async (
       JWT_SECRET,
       { expiresIn: "1h" }
     );
+    console.log("Token gerado:", token);
     res.status(200).json({
       token,
       user: {
@@ -152,6 +157,89 @@ export const getProfile = async (
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: "Erro ao buscar perfil" });
+  }
+};
+
+export const forgotPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const { email } = req.body;
+
+  if (!email) {
+    res.status(400).json({ message: "Email é obrigatório" });
+    return;
+  }
+
+  try {
+    const user = await db.oneOrNone("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
+    if (!user) {
+      res.status(404).json({ message: "Usuário não encontrado" });
+      return;
+    }
+
+    // Gerar um token de redefinição com expiração de 1 hora
+    const resetToken = jwt.sign({ userId: user.id }, JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    // Armazenar o token no banco (você pode criar uma tabela para tokens de redefinição ou atualizar o usuário)
+    await db.none("UPDATE users SET resetToken = $1 WHERE id = $2", [
+      resetToken,
+      user.id,
+    ]);
+
+    // Enviar email com o link de redefinição
+    await sendResetPasswordEmail(email, resetToken);
+
+    res
+      .status(200)
+      .json({ message: "Email de redefinição enviado com sucesso" });
+  } catch (error) {
+    console.error("Erro ao processar esqueci minha senha:", error);
+    res.status(500).json({ message: "Erro ao processar solicitação" });
+  }
+};
+
+export const resetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const { token, newPassword } = req.body;
+
+  if (!token || !newPassword) {
+    res.status(400).json({ message: "Token e nova senha são obrigatórios" });
+    return;
+  }
+
+  try {
+    // Verificar o token
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: number };
+    const user = await db.oneOrNone(
+      "SELECT * FROM users WHERE id = $1 AND resetToken = $2",
+      [decoded.userId, token]
+    );
+
+    if (!user) {
+      res.status(400).json({ message: "Token inválido ou expirado" });
+      return;
+    }
+
+    // Atualizar a senha
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await db.none(
+      "UPDATE users SET password = $1, resetToken = NULL WHERE id = $2",
+      [hashedPassword, user.id]
+    );
+
+    res.status(200).json({ message: "Senha redefinida com sucesso" });
+  } catch (error) {
+    console.error("Erro ao redefinir senha:", error);
+    res.status(500).json({ message: "Erro ao redefinir senha" });
   }
 };
 

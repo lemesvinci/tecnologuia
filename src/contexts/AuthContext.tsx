@@ -67,22 +67,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     try {
+      console.log("Tentando login com URL:", `${API_URL}/api/auth/login`);
+      console.log("Dados enviados:", { email, password });
       const response = await axios.post(`${API_URL}/api/auth/login`, {
         email,
         password,
       });
       const { token, user } = response.data;
-
+      console.log("Resposta do backend:", { token, user });
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       setIsAuthenticated(true);
       setUser(user);
     } catch (error: any) {
+      console.error("Erro no login:", error.response?.data || error.message);
       throw new Error(error.response?.data.message || "Erro ao fazer login");
     }
   };
-
+  
   const register = async (name: string, email: string, password: string) => {
     try {
       const response = await axios.post(`${API_URL}/api/auth/register`, {
