@@ -1,37 +1,43 @@
 import pgPromise from "pg-promise";
 import dotenv from "dotenv";
 
-// Carrega variáveis do .env
 dotenv.config();
-
-// Inicializa o pg-promise
 const pgp = pgPromise();
 
-// Configurações do banco usando connection string
-const dbConfig = {
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
-};
+// Configuração do banco
+let dbConfig;
 
-// Valida a presença de DATABASE_URL
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL não está definido nas variáveis de ambiente");
+if (process.env.NODE_ENV === "production") {
+  // Produção: usa DATABASE_URL
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL não está definido nas variáveis de ambiente");
+  }
+  dbConfig = {
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
+  };
+} else {
+  // Desenvolvimento: usa PG_* variáveis
+  dbConfig = {
+    host: process.env.PG_HOST || "localhost",
+    port: parseInt(process.env.PG_PORT || "5432", 10),
+    database: process.env.PG_DB || "tecnologuia",
+    user: process.env.PG_USER || "postgres",
+    password: process.env.PG_PASSWORD || "admin",
+  };
 }
 
-// Cria conexão
 const db = pgp(dbConfig);
 
-// Testa conexão
 db.connect()
   .then((obj) => {
     console.log("Conectado ao PostgreSQL!");
-    obj.done(); // Fecha a conexão imediatamente
+    obj.done();
   })
   .catch((err) => {
     console.error("Erro ao conectar ao banco:", err.message || err);
   });
 
-// Cria as tabelas, se ainda não existirem
 const initTables = async () => {
   try {
     await db.none(`
@@ -47,7 +53,6 @@ const initTables = async () => {
         role TEXT DEFAULT 'user'
       );
     `);
-
     await db.none(`
       CREATE TABLE IF NOT EXISTS comments (
         id SERIAL PRIMARY KEY,
@@ -57,16 +62,13 @@ const initTables = async () => {
         FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
       );
     `);
-
     console.log("Tabelas verificadas/criadas com sucesso");
   } catch (err) {
     console.error("Erro ao criar tabelas:", err);
   }
 };
 
-// Executa ao inicializar
 initTables();
 
-// Exporta conexão e pgp
 export default db;
 export { pgp };
