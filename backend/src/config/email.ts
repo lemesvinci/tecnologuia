@@ -11,7 +11,7 @@ export const transporter = nodemailer.createTransport({
 });
 
 export const sendResetPasswordEmail = async (to: string, token: string) => {
-    const resetLink = `http://localhost:5173/reset-password?token=${token}`;
+    const resetLink = `https://tecnologuia.onrender.com/reset-password?token=${token}`;
     const mailOptions = {
         from: process.env.EMAIL_USER,
         to,
