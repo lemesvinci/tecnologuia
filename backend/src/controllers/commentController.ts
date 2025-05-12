@@ -1,11 +1,17 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-// backend/src/controllers/commentController.ts
 import { Request, Response, NextFunction } from "express";
 import db from "../config/database";
 
 interface CommentRequest extends Request {
   user?: { id: number; email: string; role?: string };
+}
+
+interface Comment {
+  id: number;
+  content: string;
+  userId: number;
+  areaId: number;
+  createdAt: string;
+  userName: string;
 }
 
 const formatDateToISO = (
@@ -21,7 +27,6 @@ const formatDateToISO = (
   return date.toISOString();
 };
 
-// Novo endpoint para listar áreas
 export const getAreas = async (
   req: Request,
   res: Response,
@@ -30,8 +35,8 @@ export const getAreas = async (
   try {
     const areas = await db.any("SELECT * FROM areas");
     res.status(200).json(areas);
-  } catch (error) {
-    console.error("Erro ao buscar áreas:", error);
+  } catch (error: any) {
+    console.error("Erro ao buscar áreas:", { error: error.message, stack: error.stack });
     res.status(500).json({ message: "Erro ao buscar áreas" });
   }
 };
@@ -41,10 +46,15 @@ export const getComments = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const { areaId } = req.query; // Receber areaId como query parameter
+  const { areaId } = req.query;
+
+  if (!areaId || isNaN(Number(areaId))) {
+    res.status(400).json({ message: "ID da área inválido" });
+    return;
+  }
 
   try {
-    const comments = await db.any(
+    const comments = await db.any<Comment>(
       `
       SELECT comments.id, comments.content, comments.createdAt, comments.userId, comments.areaId, users.name AS userName
       FROM comments
@@ -52,17 +62,17 @@ export const getComments = async (
       WHERE comments.areaId = $1 AND comments.createdAt IS NOT NULL
       ORDER BY comments.createdAt DESC
     `,
-      [areaId]
+      [Number(areaId)]
     );
 
-    const formattedComments = comments.map((comment: any) => ({
+    const formattedComments = comments.map((comment) => ({
       ...comment,
       createdAt: formatDateToISO(comment.createdAt),
     }));
 
     res.status(200).json(formattedComments);
-  } catch (error) {
-    console.error("Erro ao buscar comentários:", error);
+  } catch (error: any) {
+    console.error("Erro ao buscar comentários:", { error: error.message, stack: error.stack });
     res.status(500).json({ message: "Erro ao buscar comentários" });
   }
 };
@@ -75,8 +85,12 @@ export const createComment = async (
   const { content, areaId } = req.body;
   const userId = req.user?.id;
 
-  if (!content || !areaId) {
-    res.status(400).json({ message: "Conteúdo e ID da área são obrigatórios" });
+  if (!userId) {
+    res.status(401).json({ message: "Usuário não autenticado" });
+    return;
+  }
+  if (!content || !areaId || isNaN(Number(areaId))) {
+    res.status(400).json({ message: "Conteúdo e ID da área são obrigatórios e devem ser válidos" });
     return;
   }
 
@@ -84,10 +98,10 @@ export const createComment = async (
     const createdAt = new Date();
     const newComment = await db.one(
       "INSERT INTO comments(content, userId, areaId, createdAt) VALUES($1, $2, $3, $4) RETURNING id, content, userId, areaId, createdAt",
-      [content, userId, areaId, createdAt]
+      [content, userId, Number(areaId), createdAt]
     );
 
-    const commentWithUser = await db.one(
+    const commentWithUser = await db.one<Comment>(
       `
       SELECT comments.id, comments.content, comments.createdAt, comments.userId, comments.areaId, users.name AS userName
       FROM comments
@@ -100,8 +114,8 @@ export const createComment = async (
     commentWithUser.createdAt = formatDateToISO(commentWithUser.createdAt);
 
     res.status(201).json(commentWithUser);
-  } catch (error) {
-    console.error("Erro ao criar comentário:", error);
+  } catch (error: any) {
+    console.error("Erro ao criar comentário:", { error: error.message, stack: error.stack });
     res.status(500).json({ message: "Erro ao criar comentário" });
   }
 };
@@ -115,10 +129,19 @@ export const deleteComment = async (
   const userId = req.user?.id;
   const userRole = req.user?.role;
 
+  if (!userId) {
+    res.status(401).json({ message: "Usuário não autenticado" });
+    return;
+  }
+  if (!id || isNaN(Number(id))) {
+    res.status(400).json({ message: "ID do comentário inválido" });
+    return;
+  }
+
   try {
     const comment = await db.oneOrNone(
       "SELECT userId FROM comments WHERE id = $1",
-      [id]
+      [Number(id)]
     );
 
     if (!comment) {
@@ -135,11 +158,11 @@ export const deleteComment = async (
       return;
     }
 
-    await db.none("DELETE FROM comments WHERE id = $1", [id]);
+    await db.none("DELETE FROM comments WHERE id = $1", [Number(id)]);
 
     res.status(200).json({ message: "Comentário excluído com sucesso" });
-  } catch (error) {
-    console.error("Erro ao excluir comentário:", error);
+  } catch (error: any) {
+    console.error("Erro ao excluir comentário:", { error: error.message, stack: error.stack });
     res.status(500).json({ message: "Erro ao excluir comentário" });
   }
 };

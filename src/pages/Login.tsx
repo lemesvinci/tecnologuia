@@ -66,7 +66,7 @@ const Login = () => {
     setIsLoading(true);
     try {
       await login(formData.email, formData.password);
-      window.location.href = ("/home");
+      window.location.href = "/home";
     } catch (error: any) {
       setErrors({
         general: error.message || "Falha no login. Verifique suas credenciais.",
