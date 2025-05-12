@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // frontend/src/pages/Login.tsx
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { LogIn, AlertCircle } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import FormInput from "../components/ui/FormInput";
@@ -23,6 +23,7 @@ interface FormErrors {
 const Login = () => {
   console.log("API_URL usada no Login.tsx:", API_URL);
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
@@ -66,12 +67,17 @@ const Login = () => {
 
     setIsLoading(true);
     try {
+      console.log("Tentando login com:", formData);
       await login(formData.email, formData.password);
-      window.location.href = "/home";
-    } catch (error: any) {
-      setErrors({
-        general: error.message || "Falha no login. Verifique suas credenciais.",
-      });
+      console.log("Login bem-sucedido, redirecionando para /home");
+      navigate("/profile");
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Falha no login. Verifique suas credenciais.";
+      console.error("Erro ao fazer login:", message);
+      setErrors({ general: message });
     } finally {
       setIsLoading(false);
     }

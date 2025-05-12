@@ -67,6 +67,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     try {
+      console.log("API_URL configurada:", API_URL);
       console.log("Tentando login com URL:", `${API_URL}/api/auth/login`);
       console.log("Dados enviados:", { email, password });
       const response = await axios.post(`${API_URL}/api/auth/login`, {
@@ -81,11 +82,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsAuthenticated(true);
       setUser(user);
     } catch (error: any) {
-      console.error("Erro no login:", error.response?.data || error.message);
+      console.error("Erro no login:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        url: `${API_URL}/api/auth/login`,
+      });
       throw new Error(error.response?.data.message || "Erro ao fazer login");
     }
   };
-  
+
   const register = async (name: string, email: string, password: string) => {
     try {
       const response = await axios.post(`${API_URL}/api/auth/register`, {
