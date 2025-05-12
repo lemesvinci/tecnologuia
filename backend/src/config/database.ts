@@ -22,8 +22,8 @@ if (process.env.NODE_ENV === "production") {
     host: process.env.PG_HOST || "localhost",
     port: parseInt(process.env.PG_PORT || "5432", 10),
     database: process.env.PG_DB || "tecnologuia",
-    user: process.env.PG_USER || "postgres",
-    password: process.env.PG_PASSWORD || "admin",
+    user: process.env.PG_USER || "tecnologuia_user",
+    password: process.env.PG_PASSWORD || "HVmAQdg2f74TBlWfzdyEYv0TBQ2SK9ww",
   };
 }
 

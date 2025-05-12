@@ -21,6 +21,7 @@ interface FormErrors {
 }
 
 const Login = () => {
+  console.log("API_URL usada no Login.tsx:", API_URL);
   const { login } = useAuth();
   const [formData, setFormData] = useState<FormData>({
     email: "",
