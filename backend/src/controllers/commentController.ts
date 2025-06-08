@@ -14,6 +14,12 @@ interface Comment {
   userName: string;
 }
 
+interface Area {
+  id: number;
+  name: string;
+  description: string;
+}
+
 const formatDateToISO = (
   dateInput: string | Date | undefined | null
 ): string => {
@@ -33,7 +39,12 @@ export const getAreas = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const areas = await db.any("SELECT * FROM areas");
+    // Retorna apenas três áreas fixas e únicas
+    const areas = [
+      { id: 1, name: "Desenvolvimento de Software", description: "Área focada em desenvolvimento de aplicativos." },
+      { id: 2, name: "Cibersegurança", description: "Área de proteção contra ameaças digitais." },
+      { id: 3, name: "Inteligência Artificial", description: "Área de IA e aprendizado de máquina." },
+    ];
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.status(200).json(areas);
   } catch (error: any) {
@@ -98,7 +109,7 @@ export const createComment = async (
 
   try {
     const createdAt = new Date();
-    // Usa o primeiro areaId por simplicidade (futuro: tabela de junção)
+    // Usa o primeiro areaId por simplicidade
     const newComment = await db.one(
       "INSERT INTO comments(content, userId, areaId, createdAt) VALUES($1, $2, $3, $4) RETURNING id, content, userId, areaId, createdAt",
       [content, userId, Number(areaIds[0]), createdAt]
