@@ -34,6 +34,7 @@ export const getAreas = async (
 ): Promise<void> => {
   try {
     const areas = await db.any("SELECT * FROM areas");
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.status(200).json(areas);
   } catch (error: any) {
     console.error("Erro ao buscar áreas:", { error: error.message, stack: error.stack });
@@ -70,6 +71,7 @@ export const getComments = async (
       createdAt: formatDateToISO(comment.createdAt),
     }));
 
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.status(200).json(formattedComments);
   } catch (error: any) {
     console.error("Erro ao buscar comentários:", { error: error.message, stack: error.stack });
@@ -82,23 +84,24 @@ export const createComment = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const { content, areaId } = req.body;
+  const { content, areaIds } = req.body;
   const userId = req.user?.id;
 
   if (!userId) {
     res.status(401).json({ message: "Usuário não autenticado" });
     return;
   }
-  if (!content || !areaId || isNaN(Number(areaId))) {
-    res.status(400).json({ message: "Conteúdo e ID da área são obrigatórios e devem ser válidos" });
+  if (!content || !Array.isArray(areaIds) || areaIds.length < 3 || areaIds.some(isNaN)) {
+    res.status(400).json({ message: "Conteúdo e pelo menos 3 areaIds válidos são obrigatórios" });
     return;
   }
 
   try {
     const createdAt = new Date();
+    // Usa o primeiro areaId por simplicidade (futuro: tabela de junção)
     const newComment = await db.one(
       "INSERT INTO comments(content, userId, areaId, createdAt) VALUES($1, $2, $3, $4) RETURNING id, content, userId, areaId, createdAt",
-      [content, userId, Number(areaId), createdAt]
+      [content, userId, Number(areaIds[0]), createdAt]
     );
 
     const commentWithUser = await db.one<Comment>(
@@ -113,6 +116,7 @@ export const createComment = async (
 
     commentWithUser.createdAt = formatDateToISO(commentWithUser.createdAt);
 
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.status(201).json(commentWithUser);
   } catch (error: any) {
     console.error("Erro ao criar comentário:", { error: error.message, stack: error.stack });
@@ -160,6 +164,7 @@ export const deleteComment = async (
 
     await db.none("DELETE FROM comments WHERE id = $1", [Number(id)]);
 
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.status(200).json({ message: "Comentário excluído com sucesso" });
   } catch (error: any) {
     console.error("Erro ao excluir comentário:", { error: error.message, stack: error.stack });

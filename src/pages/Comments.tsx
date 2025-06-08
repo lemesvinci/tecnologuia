@@ -1,4 +1,3 @@
-// frontend/src/pages/Comments.tsx
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
@@ -25,7 +24,7 @@ const Comments = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
   const [areas, setAreas] = useState<Area[]>([]);
-  const [selectedArea, setSelectedArea] = useState<number | null>(null);
+  const [selectedAreas, setSelectedAreas] = useState<number[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -34,10 +33,15 @@ const Comments = () => {
   useEffect(() => {
     const fetchAreas = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/comments/areas`);
+        const response = await axios.get(`${API_URL}/api/comments/areas`, {
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+        });
         setAreas(response.data);
         if (response.data.length > 0) {
-          setSelectedArea(response.data[0].id); // Selecionar a primeira área por padrão
+          // Selecionar as três primeiras áreas por padrão, se disponíveis
+          setSelectedAreas(response.data.slice(0, 3).map((area) => area.id));
         }
       } catch (err: any) {
         setError(err.response?.data.message || "Erro ao carregar áreas");
@@ -48,12 +52,15 @@ const Comments = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedArea === null) return;
+    if (selectedAreas.length === 0) return;
 
     const fetchComments = async () => {
       try {
         const response = await axios.get(`${API_URL}/api/comments`, {
-          params: { areaId: selectedArea },
+          params: { areaIds: selectedAreas.join(",") }, // Enviar múltiplos areaIds
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
         });
         setComments(response.data);
       } catch (err: any) {
@@ -62,7 +69,7 @@ const Comments = () => {
     };
 
     fetchComments();
-  }, [selectedArea]);
+  }, [selectedAreas]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,18 +79,19 @@ const Comments = () => {
       return;
     }
 
-    if (!selectedArea) {
-      setError("Selecione uma área para comentar");
+    if (selectedAreas.length < 3) {
+      setError("Selecione pelo menos 3 áreas de TI");
       return;
     }
 
     try {
       const response = await axios.post(
         `${API_URL}/api/comments`,
-        { content: newComment, areaId: selectedArea },
+        { content: newComment, areaIds: selectedAreas },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json; charset=utf-8",
           },
         }
       );
@@ -106,6 +114,7 @@ const Comments = () => {
       await axios.delete(`${API_URL}/api/comments/${commentId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json; charset=utf-8",
         },
       });
 
@@ -132,35 +141,48 @@ const Comments = () => {
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
-    return isNaN(date.getTime()) ? "Data indisponível" : date.toLocaleString();
+    return isNaN(date.getTime())
+      ? "Data indisponível"
+      : date.toLocaleString("pt-BR", {
+          timeZone: "UTC",
+        });
   };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-3xl font-bold mb-8">Comentários sobre Áreas de TI</h1>
 
-      {error && <p className="error-message mb-6">{error}</p>}
+      {error && <p className="text-red-600 mb-6">{error}</p>}
       {success && <p className="text-green-600 mb-6">{success}</p>}
 
       {!isAuthenticated ? (
         <p className="text-gray-600">
           Você precisa estar logado para adicionar ou visualizar comentários.{" "}
-          <Link to="/login" className="text-primary-600 hover:underline">
+          <Link to="/login" className="text-blue-600 hover:underline">
             Faça login aqui
           </Link>
           .
         </p>
       ) : (
         <>
-          {/* Seleção de Área */}
+          {/* Seleção de Áreas */}
           <div className="mb-8">
             <h2 className="text-xl font-semibold mb-4">
-              Escolha uma Área de TI
+              Escolha pelo menos 3 Áreas de TI
             </h2>
             <select
-              value={selectedArea || ""}
-              onChange={(e) => setSelectedArea(Number(e.target.value))}
-              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
+              multiple
+              value={selectedAreas.map(String)} // Converte para string para compatibilidade
+              onChange={(e) =>
+                setSelectedAreas(
+                  Array.from(e.target.selectedOptions, (option) =>
+                    Number(option.value)
+                  )
+                )
+              }
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+              style={{ minHeight: "150px" }} // Aumenta o tamanho para facilitar múltiplas seleções
+              required
             >
               {areas.map((area) => (
                 <option key={area.id} value={area.id}>
@@ -168,25 +190,29 @@ const Comments = () => {
                 </option>
               ))}
             </select>
-            {selectedArea && (
-              <p className="text-gray-600 mt-2">
-                {areas.find((area) => area.id === selectedArea)?.description}
+            {selectedAreas.length < 3 && (
+              <p className="text-red-600 mt-2">
+                Selecione pelo menos 3 áreas para continuar.
               </p>
             )}
           </div>
 
           {/* Formulário para adicionar comentários */}
-          <div className="card p-6 glass mb-8">
+          <div className="bg-white p-6 rounded-lg shadow mb-8">
             <h2 className="text-xl font-semibold mb-4">Adicionar Comentário</h2>
             <form onSubmit={handleSubmit}>
               <textarea
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Digite seu comentário sobre esta área de TI..."
-                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
+                placeholder="Digite seu comentário sobre estas áreas de TI..."
+                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                 rows={4}
               />
-              <button type="submit" className="btn-primary mt-4">
+              <button
+                type="submit"
+                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                disabled={selectedAreas.length < 3}
+              >
                 Enviar Comentário
               </button>
             </form>
@@ -196,12 +222,15 @@ const Comments = () => {
           <div className="space-y-6">
             {comments.length === 0 ? (
               <p className="text-gray-600">
-                Nenhum comentário encontrado para esta área. Seja o primeiro a
+                Nenhum comentário encontrado para estas áreas. Seja o primeiro a
                 comentar!
               </p>
             ) : (
               comments.map((comment) => (
-                <div key={comment.id} className="card p-6 glass">
+                <div
+                  key={comment.id}
+                  className="bg-white p-6 rounded-lg shadow"
+                >
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <h4 className="font-semibold">{comment.userName}</h4>

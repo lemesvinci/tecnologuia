@@ -1,3 +1,4 @@
+// backend/src/config/database.ts
 import pgPromise from "pg-promise";
 import dotenv from "dotenv";
 
