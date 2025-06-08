@@ -43,7 +43,7 @@ const Comments = () => {
         // Adiciona links fictícios para videoaulas (substitua por links reais)
         const areasWithLinks = response.data.map((area: Area, index: number) => ({
           ...area,
-          videoLink: `https://example.com/video${index + 1}`, // Exemplo, ajuste conforme necessário
+          videoLink: `https://www.youtube.com/cursoemvideo${index + 1}`, // Exemplo, ajuste conforme necessário
         }));
         setAreas(areasWithLinks);
         if (areasWithLinks.length > 0) {
