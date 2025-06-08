@@ -63,6 +63,13 @@ const initTables = async () => {
         FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
       );
     `);
+        await db.none(`
+      INSERT INTO areas (name, description) VALUES
+      ('Desenvolvimento de Software', 'Área focada em programação e desenvolvimento de aplicações.'),
+      ('Cibersegurança', 'Área voltada para proteção de sistemas e dados contra ataques cibernéticos.'),
+      ('Inteligência Artificial', 'Área que explora o desenvolvimento de sistemas inteligentes e aprendizado de máquina.')
+      ON CONFLICT DO NOTHING
+    `);
     console.log("Tabelas verificadas/criadas com sucesso");
   } catch (err) {
     console.error("Erro ao criar tabelas:", err);
