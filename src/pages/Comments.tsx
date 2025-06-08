@@ -41,9 +41,9 @@ const Comments = () => {
         });
         console.log("Áreas recebidas:", response.data); // Depuração
         // Adiciona links fictícios para videoaulas (substitua por links reais)
-        const areasWithLinks = response.data.map((area: Area, index: number) => ({
+        const areasWithLinks = response.data.map((area: Area) => ({
           ...area,
-          videoLink: `https://www.youtube.com/cursoemvideo${index + 1}`, // Exemplo, ajuste conforme necessário
+          videoLink: `https://www.youtube.com/cursoemvideo`, // Exemplo, ajuste conforme necessário
         }));
         setAreas(areasWithLinks);
         if (areasWithLinks.length > 0) {
