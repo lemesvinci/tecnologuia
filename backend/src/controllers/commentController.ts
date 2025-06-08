@@ -94,17 +94,17 @@ export const createComment = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const { content, areaIds } = req.body;
+  const { content, areaId } = req.body; // Alterado de areaIds para areaId
   const userId = req.user?.id;
 
-  console.log("Requisição recebida:", { content, areaIds, userId }); // Depuração
+  console.log("Requisição recebida:", { content, areaId, userId }); // Depuração
 
   if (!userId) {
     res.status(401).json({ message: "Usuário não autenticado" });
     return;
   }
-  if (!content || !Array.isArray(areaIds) || areaIds.length < 3 || areaIds.some((id) => isNaN(Number(id)) || ![1, 2, 3].includes(Number(id)))) {
-    res.status(400).json({ message: "Conteúdo e pelo menos 3 areaIds válidos (1, 2 ou 3) são obrigatórios" });
+  if (!content || !areaId || isNaN(Number(areaId)) || ![1, 2, 3].includes(Number(areaId))) {
+    res.status(400).json({ message: "Conteúdo e um areaId válido (1, 2 ou 3) são obrigatórios" });
     return;
   }
 
@@ -112,7 +112,7 @@ export const createComment = async (
     const createdAt = new Date();
     const newComment = await db.one(
       "INSERT INTO comments(content, userId, areaId, createdAt) VALUES($1, $2, $3, $4) RETURNING id, content, userId, areaId, createdAt",
-      [content, userId, Number(areaIds[0]), createdAt]
+      [content, userId, Number(areaId), createdAt]
     );
 
     const commentWithUser = await db.one<Comment>(
