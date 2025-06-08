@@ -38,12 +38,13 @@ const Comments = () => {
             "Content-Type": "application/json; charset=utf-8",
           },
         });
+        console.log("Áreas recebidas:", response.data); // Depuração
         setAreas(response.data);
         if (response.data.length > 0) {
-          // Selecionar as três primeiras áreas por padrão, se disponíveis
-          setSelectedAreas(response.data.slice(0, 3).map((area) => area.id));
+          setSelectedAreas(response.data.map((area) => area.id)); // Seleciona todas as áreas por padrão
         }
       } catch (err: any) {
+        console.error("Erro ao carregar áreas:", err);
         setError(err.response?.data.message || "Erro ao carregar áreas");
       }
     };
@@ -57,7 +58,7 @@ const Comments = () => {
     const fetchComments = async () => {
       try {
         const response = await axios.get(`${API_URL}/api/comments`, {
-          params: { areaIds: selectedAreas.join(",") }, // Enviar múltiplos areaIds
+          params: { areaIds: selectedAreas.join(",") },
           headers: {
             "Content-Type": "application/json; charset=utf-8",
           },
@@ -141,11 +142,9 @@ const Comments = () => {
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
-    return isNaN(date.getTime())
-      ? "Data indisponível"
-      : date.toLocaleString("pt-BR", {
-          timeZone: "UTC",
-        });
+    return isNaN(date.getTime()) ? "Data indisponível" : date.toLocaleString("pt-BR", {
+      timeZone: "UTC",
+    });
   };
 
   return (
@@ -181,14 +180,18 @@ const Comments = () => {
                 )
               }
               className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-              style={{ minHeight: "150px" }} // Aumenta o tamanho para facilitar múltiplas seleções
+              style={{ minHeight: "150px" }}
               required
             >
-              {areas.map((area) => (
-                <option key={area.id} value={area.id}>
-                  {area.name}
-                </option>
-              ))}
+              {areas.length > 0 ? (
+                areas.map((area) => (
+                  <option key={area.id} value={area.id}>
+                    {area.name}
+                  </option>
+                ))
+              ) : (
+                <option disabled>Carregando áreas...</option>
+              )}
             </select>
             {selectedAreas.length < 3 && (
               <p className="text-red-600 mt-2">
@@ -238,8 +241,7 @@ const Comments = () => {
                         {formatDate(comment.createdAt)}
                       </p>
                     </div>
-                    {(comment.userId === user?.id ||
-                      user?.role === "admin") && (
+                    {(comment.userId === user?.id || user?.role === "admin") && (
                       <button
                         onClick={() => handleDelete(comment.id)}
                         className="text-red-600 hover:text-red-800"
