@@ -39,7 +39,6 @@ export const getAreas = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    // Retorna apenas três áreas fixas e únicas
     const areas = [
       { id: 1, name: "Desenvolvimento de Software", description: "Área focada em desenvolvimento de aplicativos." },
       { id: 2, name: "Cibersegurança", description: "Área de proteção contra ameaças digitais." },
@@ -98,18 +97,19 @@ export const createComment = async (
   const { content, areaIds } = req.body;
   const userId = req.user?.id;
 
+  console.log("Requisição recebida:", { content, areaIds, userId }); // Depuração
+
   if (!userId) {
     res.status(401).json({ message: "Usuário não autenticado" });
     return;
   }
-  if (!content || !Array.isArray(areaIds) || areaIds.length < 3 || areaIds.some(isNaN)) {
-    res.status(400).json({ message: "Conteúdo e pelo menos 3 areaIds válidos são obrigatórios" });
+  if (!content || !Array.isArray(areaIds) || areaIds.length < 3 || areaIds.some((id) => isNaN(Number(id)) || ![1, 2, 3].includes(Number(id)))) {
+    res.status(400).json({ message: "Conteúdo e pelo menos 3 areaIds válidos (1, 2 ou 3) são obrigatórios" });
     return;
   }
 
   try {
     const createdAt = new Date();
-    // Usa o primeiro areaId por simplicidade
     const newComment = await db.one(
       "INSERT INTO comments(content, userId, areaId, createdAt) VALUES($1, $2, $3, $4) RETURNING id, content, userId, areaId, createdAt",
       [content, userId, Number(areaIds[0]), createdAt]
@@ -131,7 +131,7 @@ export const createComment = async (
     res.status(201).json(commentWithUser);
   } catch (error: any) {
     console.error("Erro ao criar comentário:", { error: error.message, stack: error.stack });
-    res.status(500).json({ message: "Erro ao criar comentário" });
+    res.status(500).json({ message: `Erro ao criar comentário: ${error.message}` });
   }
 };
 
