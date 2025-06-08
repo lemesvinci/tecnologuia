@@ -173,85 +173,14 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 -- Data for Name: areas; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.areas (id, name, description) FROM stdin;
-1	Desenvolvimento	Área focada em programação desenvolvimento de software
-2	Cibersegurança	Área focada em segurança da informação e proteção de dados
-3	Inteligência Artificial	Área focada em aprendizado de máquina e IA
-4	Banco de Dados	Área focada em gerenciamento e análise de dados
-5	Infraestrutura	Área focada em redes, servidores e infraestrutura de TI
-6	DevOps	Área focada em integração entre desenvolvimento e operações
-7	Cloud Computing	Área focada em computação em nuvem e serviços online
-8	Desenvolvimento	Área focada em programação desenvolvimento de software
-9	Cibersegurança	Área focada em segurança da informação e proteção de dados
-10	Inteligência Artificial	Área focada em aprendizado de máquina e IA
-11	Banco de Dados	Área focada em gerenciamento e análise de dados
-12	Infraestrutura	Área focada em redes, servidores e infraestrutura de TI
-13	DevOps	Área focada em integração entre desenvolvimento e operações
-14	Cloud Computing	Área focada em computação em nuvem e serviços online
-15	Desenvolvimento	Área focada em programação desenvolvimento de software
-16	Cibersegurança	Área focada em segurança da informação e proteção de dados
-17	Inteligência Artificial	Área focada em aprendizado de máquina e IA
-18	Banco de Dados	Área focada em gerenciamento e análise de dados
-19	Infraestrutura	Área focada em redes, servidores e infraestrutura de TI
-20	DevOps	Área focada em integração entre desenvolvimento e operações
-21	Cloud Computing	Área focada em computação em nuvem e serviços online
-22	Desenvolvimento	Área focada em programação desenvolvimento de software
-23	Cibersegurança	Área focada em segurança da informação e proteção de dados
-24	Inteligência Artificial	Área focada em aprendizado de máquina e IA
-25	Banco de Dados	Área focada em gerenciamento e análise de dados
-26	Infraestrutura	Área focada em redes, servidores e infraestrutura de TI
-27	DevOps	Área focada em integração entre desenvolvimento e operações
-28	Cloud Computing	Área focada em computação em nuvem e serviços online
-29	Desenvolvimento	Área focada em programação desenvolvimento de software
-30	Cibersegurança	Área focada em segurança da informação e proteção de dados
-31	Inteligência Artificial	Área focada em aprendizado de máquina e IA
-32	Banco de Dados	Área focada em gerenciamento e análise de dados
-33	Infraestrutura	Área focada em redes, servidores e infraestrutura de TI
-34	DevOps	Área focada em integração entre desenvolvimento e operações
-35	Cloud Computing	Área focada em computação em nuvem e serviços online
-36	Desenvolvimento	Área focada em programação desenvolvimento de software
-37	Cibersegurança	Área focada em segurança da informação e proteção de dados
-38	Inteligência Artificial	Área focada em aprendizado de máquina e IA
-39	Banco de Dados	Área focada em gerenciamento e análise de dados
-40	Infraestrutura	Área focada em redes, servidores e infraestrutura de TI
-41	DevOps	Área focada em integração entre desenvolvimento e operações
-42	Cloud Computing	Área focada em computação em nuvem e serviços online
-43	Desenvolvimento	Área focada em programação desenvolvimento de software
-44	Cibersegurança	Área focada em segurança da informação e proteção de dados
-45	Inteligência Artificial	Área focada em aprendizado de máquina e IA
-46	Banco de Dados	Área focada em gerenciamento e análise de dados
-47	Infraestrutura	Área focada em redes, servidores e infraestrutura de TI
-48	DevOps	Área focada em integração entre desenvolvimento e operações
-49	Cloud Computing	Área focada em computação em nuvem e serviços online
-50	Desenvolvimento	Área focada em programação desenvolvimento de software
-51	Cibersegurança	Área focada em segurança da informação e proteção de dados
-52	Inteligência Artificial	Área focada em aprendizado de máquina e IA
-53	Banco de Dados	Área focada em gerenciamento e análise de dados
-54	Infraestrutura	Área focada em redes, servidores e infraestrutura de TI
-55	DevOps	Área focada em integração entre desenvolvimento e operações
-56	Cloud Computing	Área focada em computação em nuvem e serviços online
-57	Desenvolvimento	Área focada em programação desenvolvimento de software
-58	Cibersegurança	Área focada em segurança da informação e proteção de dados
-59	Inteligência Artificial	Área focada em aprendizado de máquina e IA
-60	Banco de Dados	Área focada em gerenciamento e análise de dados
-61	Infraestrutura	Área focada em redes, servidores e infraestrutura de TI
-62	DevOps	Área focada em integração entre desenvolvimento e operações
-63	Cloud Computing	Área focada em computação em nuvem e serviços online
-64	Desenvolvimento	Área focada em programação desenvolvimento de software
-65	Cibersegurança	Área focada em segurança da informação e proteção de dados
-66	Inteligência Artificial	Área focada em aprendizado de máquina e IA
-67	Banco de Dados	Área focada em gerenciamento e análise de dados
-68	Infraestrutura	Área focada em redes, servidores e infraestrutura de TI
-69	DevOps	Área focada em integração entre desenvolvimento e operações
-70	Cloud Computing	Área focada em computação em nuvem e serviços online
-71	Desenvolvimento	Área focada em programação desenvolvimento de software
-72	Cibersegurança	Área focada em segurança da informação e proteção de dados
-73	Inteligência Artificial	Área focada em aprendizado de máquina e IA
-74	Banco de Dados	Área focada em gerenciamento e análise de dados
-75	Infraestrutura	Área focada em redes, servidores e infraestrutura de TI
-76	DevOps	Área focada em integração entre desenvolvimento e operações
-77	Cloud Computing	Área focada em computação em nuvem e serviços online
-\.
+INSERT INTO public.areas (id, name, description) VALUES
+(1, 'Desenvolvimento', 'Área focada em programação desenvolvimento de software'),
+(2, 'Cibersegurança', 'Área focada em segurança da informação e proteção de dados'),
+(3, 'Inteligência Artificial', 'Área focada em aprendizado de máquina e IA'),
+(4, 'Banco de Dados', 'Área focada em gerenciamento e análise de dados'),
+(5, 'Infraestrutura', 'Área focada em redes, servidores e infraestrutura de TI'),
+(6, 'DevOps', 'Área focada em integração entre desenvolvimento e operações'),
+(7, 'Cloud Computing', 'Área focada em computação em nuvem e serviços online');
 
 
 --
@@ -259,8 +188,7 @@ COPY public.areas (id, name, description) FROM stdin;
 --
 
 COPY public.comments (id, content, userid, createdat) FROM stdin;
-\.
-
+-- No comments to insert
 
 --
 -- Data for Name: comments_backup; Type: TABLE DATA; Schema: public; Owner: postgres
@@ -268,13 +196,12 @@ COPY public.comments (id, content, userid, createdat) FROM stdin;
 
 COPY public.comments_backup (id, content, userid, createdat) FROM stdin;
 34	oi	1	2025-05-10 08:33:15.136
-35	a	1	2025-05-10 04:47:06.572
-37	teste	2	2025-05-10 14:37:35.74
-39	testando	2	2025-05-11 00:03:14.969
-40	testando2	2	2025-05-11 00:24:10.325
-\.
-
-
+INSERT INTO public.comments_backup (id, content, userid, createdat) VALUES
+(34, 'oi', 1, '2025-05-10 08:33:15.136'),
+(35, 'a', 1, '2025-05-10 04:47:06.572'),
+(37, 'teste', 2, '2025-05-10 14:37:35.74'),
+(39, 'testando', 2, '2025-05-11 00:03:14.969'),
+(40, 'testando2', 2, '2025-05-11 00:24:10.325');
 --
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -282,10 +209,9 @@ COPY public.comments_backup (id, content, userid, createdat) FROM stdin;
 COPY public.users (id, name, email, password, phone, location, occupation, bio, role, resettoken) FROM stdin;
 1	Guilherme Lemes Andrade	glemesandrade7@gmail.com	$2a$10$4NRbxcfhGTCUD5IRI46e8OH5.ZIeLLy69krrEPPHXRxZ6wGDT0Aey	\N	\N	\N	\N	admin	\N
 2	Leandro Lima	leandrolima@gmail.com	$2a$10$vExJATcykkn/5QwcCrP31.RXs2ndh5fiTqUvH1GVLDCvsWS8zG6cW	\N	\N	\N	\N	user	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc0Njk3MzA5NSwiZXhwIjoxNzQ2OTc2Njk1fQ.2KEHKIJ3keHdtQSElKbn7aC5hdhaCnwzP5ZmkmNPBas
-\.
-
-
---
+INSERT INTO public.users (id, name, email, password, phone, location, occupation, bio, role, resettoken) VALUES
+(1, 'Guilherme Lemes Andrade', 'glemesandrade7@gmail.com', '$2a$10$4NRbxcfhGTCUD5IRI46e8OH5.ZIeLLy69krrEPPHXRxZ6wGDT0Aey', NULL, NULL, NULL, NULL, 'admin', NULL),
+(2, 'Leandro Lima', 'leandrolima@gmail.com', '$2a$10$vExJATcykkn/5QwcCrP31.RXs2ndh5fiTqUvH1GVLDCvsWS8zG6cW', NULL, NULL, NULL, NULL, 'user', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc0Njk3MzA5NSwiZXhwIjoxNzQ2OTc2Njk1fQ.2KEHKIJ3keHdtQSElKbn7aC5hdhaCnwzP5ZmkmNPBas');
 -- Name: areas_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
