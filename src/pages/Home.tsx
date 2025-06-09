@@ -1,4 +1,12 @@
-import { Cpu, Smartphone, Code, BookOpen, Zap, Users } from "lucide-react";
+import {
+  Cpu,
+  Smartphone,
+  Code,
+  BookOpen,
+  Zap,
+  Users,
+  Terminal,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import FeatureCard from "../components/ui/FeatureCard";
@@ -71,6 +79,16 @@ const Home = () => {
       to: "/comunidade",
       image:
         "https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=1600",
+      videoLink: "https://www.youtube.com/cursoemvideo",
+    },
+    {
+      icon: Terminal,
+      title: "Linux",
+      description:
+        "Aprenda sobre o sistema operacional Linux, sua instalação e comandos.",
+      to: "/linux-intro",
+      image:
+        "https://images.pexels.com/photos/1181397/pexels-photo-1181397.jpeg?auto=compress&cs=tinysrgb&w=1600",
       videoLink: "https://www.youtube.com/cursoemvideo",
     },
   ];
@@ -313,14 +331,22 @@ const Home = () => {
       <div className="fixed bottom-4 right-4 z-50">
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="bg-blue-600 text-white p-3 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-white"
+          className={`bg-blue-600 text-white p-3 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-white ${
+            accessibilityOptions.highContrast ? "bg-yellow-300 text-black" : ""
+          }`}
           aria-label="Abrir menu de acessibilidade"
           aria-expanded={isMenuOpen}
         >
           <Accessibility size={24} />
         </button>
         {isMenuOpen && (
-          <div className="absolute bottom-16 right-0 bg-white p-4 rounded-lg shadow-lg border border-gray-200">
+          <div
+            className={`absolute bottom-16 right-0 bg-white p-4 rounded-lg shadow-lg border border-gray-200 ${
+              accessibilityOptions.highContrast
+                ? "bg-gray-900 text-yellow-300 border-yellow-300"
+                : ""
+            }`}
+          >
             <label className="flex items-center mb-2">
               <input
                 type="checkbox"
