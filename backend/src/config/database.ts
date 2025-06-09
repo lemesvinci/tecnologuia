@@ -52,7 +52,8 @@ const initTables = async () => {
         occupation TEXT,
         bio TEXT,
         role TEXT DEFAULT 'user',
-        reset_token TEXT
+        reset_token TEXT,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
     await db.none(`
@@ -63,16 +64,6 @@ const initTables = async () => {
         createdAt TIMESTAMP NOT NULL,
         FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
       );
-    `);
-    await db.none(`
-      INSERT INTO areas (name, description) VALUES
-      ('Desenvolvimento de Software', 'Área focada em programação e desenvolvimento de aplicações.'),
-      ('Cibersegurança', 'Área voltada para proteção de sistemas e dados contra ataques cibernéticos.'),
-      ('Inteligência Artificial', 'Área que explora o desenvolvimento de sistemas inteligentes e aprendizado de máquina.'),
-      ('Banco de Dados', 'Área focada em gerenciamento, armazenamento e análise de dados.'),
-      ('Infraestrutura', 'Área responsável por manter e otimizar servidores, redes e equipamentos de TI.'),
-      ('Cloud Computing', 'Área dedicada à computação em nuvem, oferecendo soluções escaláveis e acessíveis online.')
-      ON CONFLICT DO NOTHING
     `);
     console.log("Tabelas verificadas/criadas com sucesso");
   } catch (err) {

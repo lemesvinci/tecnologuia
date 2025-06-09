@@ -14,6 +14,11 @@ interface User {
   createdAt?: string; // Opcional, para compatibilidade
 }
 
+// Adicionando a interface AuthRequest para garantir que o req.user esteja tipado corretamente
+interface AuthRequest extends Request {
+  user?: { id: number; email: string; role?: string };
+}
+
 export const getUsers = async (
   req: AuthRequest,
   res: Response,
@@ -104,5 +109,3 @@ export const register = async (
       .json({ message: "Erro no servidor", detail: error.message });
   }
 };
-
-// Certifique-se de que os outros controllers (login, logout, etc.) estejam consistentes
