@@ -12,7 +12,7 @@ interface User {
   occupation?: string;
   bio?: string;
   role?: string;
-  createdAt?: string; // Opcional, para compatibilidade
+//  createdAt?: string; // Opcional, para compatibilidade
 }
 
 // Adicionando a interface AuthRequest para garantir que o req.user esteja tipado corretamente
