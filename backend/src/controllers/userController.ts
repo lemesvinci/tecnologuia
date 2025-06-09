@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import db from "../config/database";
-import { AuthRequest } from "../types"; // Certifique-se de que este arquivo existe
 
 // Interface para tipar o usuário
 interface User {
