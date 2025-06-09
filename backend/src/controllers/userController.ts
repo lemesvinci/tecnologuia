@@ -40,7 +40,7 @@ export const getUsers = async (
     console.log("Tentando buscar usuários..."); // Log de depuração
     const users = await db.any<User>(
       `
-      SELECT id, name, email, phone, location, occupation, bio, role, COALESCE(createdAt, CURRENT_TIMESTAMP) AS createdAt
+      SELECT id, name, email, phone, location, occupation, bio, role 
       FROM users
       ORDER BY createdAt DESC
       `
