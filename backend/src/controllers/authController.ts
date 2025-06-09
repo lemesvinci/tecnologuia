@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-// backend/src/controllers/authController.ts
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -34,29 +33,22 @@ export const register = async (
 ): Promise<void> => {
   const { name, email, password } = req.body;
 
-  console.log("Dados recebidos: ", { name, email, password });
-
   if (!name || !email || !password) {
     res.status(400).json({ message: "Preencha todos os campos" });
     return;
   }
 
   try {
-    // Verificar se o email já existe
     const existingUser = await db.oneOrNone(
       "SELECT * FROM users WHERE email = $1",
       [email]
     );
-    console.log("Usuário existente: ", existingUser);
     if (existingUser) {
       res.status(400).json({ message: "Email já registrado" });
       return;
     }
 
-    // Criptografar a senha
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log("Senha criptografada: ", hashedPassword);
-    // Inserir o novo usuário
     const newUser = await db.one(
       "INSERT INTO users(name, email, password) VALUES($1, $2, $3) RETURNING id, name, email",
       [name, email, hashedPassword]
@@ -80,8 +72,6 @@ export const login = async (
 ): Promise<void> => {
   const { email, password } = req.body;
 
-  console.log("Tentando login com:", { email });
-
   if (!email || !password) {
     res.status(400).json({ message: "Preencha todos os campos" });
     return;
@@ -93,11 +83,6 @@ export const login = async (
       [email]
     );
 
-    console.log("Usuário encontrado:", user ? "Sim" : "Não");
-    if (!user) {
-      res.status(400).json({ message: "Email ou senha incorretos" });
-      return;
-    }
     if (!user) {
       res.status(400).json({ message: "Email ou senha incorretos" });
       return;
@@ -114,7 +99,7 @@ export const login = async (
       JWT_SECRET,
       { expiresIn: "1h" }
     );
-    console.log("Token gerado:", token);
+
     res.status(200).json({
       token,
       user: {
@@ -183,18 +168,15 @@ export const forgotPassword = async (
       return;
     }
 
-    // Gerar um token de redefinição com expiração de 1 hora
     const resetToken = jwt.sign({ userId: user.id }, JWT_SECRET, {
       expiresIn: "1h",
     });
 
-    // Armazenar o token no banco (você pode criar uma tabela para tokens de redefinição ou atualizar o usuário)
-    await db.none("UPDATE users SET resetToken = $1 WHERE id = $2", [
+    await db.none("UPDATE users SET reset_token = $1 WHERE id = $2", [
       resetToken,
       user.id,
     ]);
 
-    // Enviar email com o link de redefinição
     await sendResetPasswordEmail(email, resetToken);
 
     res
@@ -219,10 +201,10 @@ export const resetPassword = async (
   }
 
   try {
-    // Verificar o token
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: number };
+
     const user = await db.oneOrNone(
-      "SELECT * FROM users WHERE id = $1 AND resetToken = $2",
+      "SELECT * FROM users WHERE id = $1 AND reset_token = $2",
       [decoded.userId, token]
     );
 
@@ -231,10 +213,9 @@ export const resetPassword = async (
       return;
     }
 
-    // Atualizar a senha
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await db.none(
-      "UPDATE users SET password = $1, resetToken = NULL WHERE id = $2",
+      "UPDATE users SET password = $1, reset_token = NULL WHERE id = $2",
       [hashedPassword, user.id]
     );
 
