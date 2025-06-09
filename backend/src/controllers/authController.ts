@@ -247,7 +247,7 @@ export const updateProfile = async (
   }
 };
 
-export const getAllUsers = async (
+export const getUsers = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction

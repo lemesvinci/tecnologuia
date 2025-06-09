@@ -1,4 +1,3 @@
-// backend/src/routes/authRoutes.ts
 import { Router } from "express";
 import {
   login,
@@ -8,16 +7,17 @@ import {
   updateProfile,
   forgotPassword,
   resetPassword,
-  getAllUsers,
-} from "../controllers/authController";
+} from "../controllers/authController"; // Verifique se o arquivo está correto
 import { authMiddleware } from "../middleware/auth";
+import { getUsers } from './../controllers/userController';
 
 const router = Router();
 
+// Definir rotas com prefixo /api implicitamente aplicado em index.ts
 router.post("/login", login);
 router.post("/register", register);
 router.post("/logout", logout);
-router.get("/users", authMiddleware, getAllUsers);
+router.get("/users", authMiddleware, getUsers); // Rota para listar usuários
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
 router.get("/profile", authMiddleware, getProfile);
