@@ -10,6 +10,8 @@ import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import ResetPassword from "./pages/ResetPassword";
 import Users from "./pages/Users";
+import LinuxContent from "./pages/LinuxContent";
+import LinuxIntro from "./pages/LinuxIntro";
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="comments" element={<Comments />} />
         <Route path="/:section" element={<FeaturePage />} />{" "}
+        <Route path="/linux-intro" element={<LinuxIntro />} />
+        <Route path="/linux-content" element={<LinuxContent />} />
         <Route path="/users" element={<Users />} />
         {/* Rota dinâmica para as seções */}
         <Route
