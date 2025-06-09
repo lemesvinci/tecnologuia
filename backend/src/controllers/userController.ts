@@ -42,7 +42,7 @@ export const getUsers = async (
       `
       SELECT id, name, email, phone, location, occupation, bio, role 
       FROM users
-      ORDER BY createdAt DESC
+      ORDER BY name DESC
       `
     );
 
