@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import db from "../config/database";
+import bcrypt from "bcryptjs";
 
 // Interface para tipar o usuário
 interface User {
