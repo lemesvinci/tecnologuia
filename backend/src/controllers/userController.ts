@@ -12,67 +12,48 @@ interface User {
   occupation?: string;
   bio?: string;
   role?: string;
-//  createdAt?: string; // Opcional, para compatibilidade
+  createdAt?: string; // Garantir compatibilidade
 }
 
-// Adicionando a interface AuthRequest para garantir que o req.user esteja tipado corretamente
+// Interface para tipar a requisição
 interface AuthRequest extends Request {
   user?: { id: number; email: string; role?: string };
 }
 
-export const getUsers = async (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const getUsers = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     // Verificar se o usuário é administrador
     if (req.user?.role !== "admin") {
-      res
-        .status(403)
-        .json({
-          message:
-            "Acesso negado. Apenas administradores podem visualizar todos os usuários.",
-        });
+      res.status(403).json({
+        message: "Acesso negado. Apenas administradores podem visualizar todos os usuários.",
+      });
       return;
     }
 
     console.log("Tentando buscar usuários..."); // Log de depuração
     const users = await db.any<User>(
       `
-      SELECT id, name, email, phone, location, occupation, bio, role 
+      SELECT id, name, email, phone, location, occupation, bio, role, COALESCE(createdAt, CURRENT_TIMESTAMP) AS createdAt
       FROM users
-      ORDER BY name DESC
+      ORDER BY createdAt DESC
       `
     );
 
     const formattedUsers = users.map((user) => ({
       ...user,
-      createdAt: user.createdAt
-        ? new Date(user.createdAt).toISOString()
-        : new Date().toISOString(),
+      createdAt: user.createdAt ? new Date(user.createdAt).toISOString() : new Date().toISOString(),
     }));
 
     console.log("Usuários encontrados:", formattedUsers); // Log de sucesso
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.status(200).json(formattedUsers);
   } catch (error: any) {
-    console.error("Erro ao buscar usuários:", {
-      error: error.message,
-      stack: error.stack,
-    });
-    res
-      .status(500)
-      .json({ message: "Erro ao buscar usuários", detail: error.message });
+    console.error("Erro ao buscar usuários:", { error: error.message, stack: error.stack });
+    res.status(500).json({ message: "Erro ao buscar usuários", detail: error.message });
   }
 };
 
-// Ajuste no register para garantir consistência
-export const register = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
@@ -81,10 +62,7 @@ export const register = async (
   }
 
   try {
-    const existingUser = await db.oneOrNone(
-      "SELECT * FROM users WHERE email = $1",
-      [email]
-    );
+    const existingUser = await db.oneOrNone("SELECT * FROM users WHERE email = $1", [email]);
     if (existingUser) {
       res.status(400).json({ message: "Email já registrado" });
       return;
@@ -100,13 +78,9 @@ export const register = async (
       [name, email, hashedPassword]
     );
 
-    res
-      .status(201)
-      .json({ message: "Usuário registrado com sucesso", user: newUser });
+    res.status(201).json({ message: "Usuário registrado com sucesso", user: newUser });
   } catch (error: any) {
     console.error("Erro ao registrar usuário:", error);
-    res
-      .status(500)
-      .json({ message: "Erro no servidor", detail: error.message });
+    res.status(500).json({ message: "Erro no servidor", detail: error.message });
   }
 };

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+// backend/src/controllers/authController.ts
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
