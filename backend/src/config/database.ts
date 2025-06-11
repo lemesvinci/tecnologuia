@@ -61,6 +61,8 @@ const initTables = async () => {
         id SERIAL PRIMARY KEY,
         content TEXT NOT NULL,
         userId INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        areaId INTEGER NOT NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         createdAt TIMESTAMP NOT NULL,
         FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
       );
