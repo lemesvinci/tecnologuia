@@ -1,15 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 // backend/src/controllers/authController.ts
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import db, { pgp } from "../config/database";
+import db from "../config/database";
 import { sendResetPasswordEmail } from "../config/email";
 
 const JWT_SECRET = process.env.JWT_SECRET || "segredo_jwt";
 
-// Interface para tipar o usuário
 interface User {
   id: number;
   name: string;
@@ -20,18 +17,14 @@ interface User {
   occupation?: string;
   bio?: string;
   role?: string;
+  createdAt?: string;
 }
 
-// Interface para tipar a requisição com o usuário
 interface AuthRequest extends Request {
   user?: { id: number; email: string; role?: string };
 }
 
-export const register = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const register = async (req: Request, res: Response): Promise<void> => {
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
@@ -51,7 +44,8 @@ export const register = async (
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await db.one(
-      "INSERT INTO users(name, email, password) VALUES($1, $2, $3) RETURNING id, name, email",
+      `INSERT INTO users(name, email, password, createdAt, role)
+       VALUES($1, $2, $3, CURRENT_TIMESTAMP, 'user') RETURNING id, name, email`,
       [name, email, hashedPassword]
     );
 
@@ -66,11 +60,7 @@ export const register = async (
   }
 };
 
-export const login = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const login = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -83,7 +73,6 @@ export const login = async (
       "SELECT * FROM users WHERE email = $1",
       [email]
     );
-
     if (!user) {
       res.status(400).json({ message: "Email ou senha incorretos" });
       return;
@@ -98,7 +87,9 @@ export const login = async (
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       JWT_SECRET,
-      { expiresIn: "1h" }
+      {
+        expiresIn: "1h",
+      }
     );
 
     res.status(200).json({
@@ -112,6 +103,7 @@ export const login = async (
         occupation: user.occupation,
         bio: user.bio,
         role: user.role,
+        createdAt: user.createdAt,
       },
     });
   } catch (error: any) {
@@ -122,18 +114,13 @@ export const login = async (
   }
 };
 
-export const logout = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
+export const logout = (_req: Request, res: Response): void => {
   res.status(200).json({ message: "Logout realizado com sucesso" });
 };
 
 export const getProfile = async (
   req: AuthRequest,
-  res: Response,
-  next: NextFunction
+  res: Response
 ): Promise<void> => {
   const userId = req.user?.id;
 
@@ -150,8 +137,7 @@ export const getProfile = async (
 
 export const forgotPassword = async (
   req: Request,
-  res: Response,
-  next: NextFunction
+  res: Response
 ): Promise<void> => {
   const { email } = req.body;
 
@@ -172,12 +158,10 @@ export const forgotPassword = async (
     const resetToken = jwt.sign({ userId: user.id }, JWT_SECRET, {
       expiresIn: "1h",
     });
-
     await db.none("UPDATE users SET reset_token = $1 WHERE id = $2", [
       resetToken,
       user.id,
     ]);
-
     await sendResetPasswordEmail(email, resetToken);
 
     res
@@ -191,8 +175,7 @@ export const forgotPassword = async (
 
 export const resetPassword = async (
   req: Request,
-  res: Response,
-  next: NextFunction
+  res: Response
 ): Promise<void> => {
   const { token, newPassword } = req.body;
 
@@ -203,7 +186,6 @@ export const resetPassword = async (
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: number };
-
     const user = await db.oneOrNone(
       "SELECT * FROM users WHERE id = $1 AND reset_token = $2",
       [decoded.userId, token]
@@ -229,17 +211,20 @@ export const resetPassword = async (
 
 export const updateProfile = async (
   req: AuthRequest,
-  res: Response,
-  next: NextFunction
+  res: Response
 ): Promise<void> => {
   const userId = req.user?.id;
   const { name, phone, location, occupation, bio } = req.body;
 
   try {
     const updatedUser = await db.one(
-      "UPDATE users SET name = $1, phone = $2, location = $3, occupation = $4, bio = $5 WHERE id = $6 RETURNING id, name, email, phone, location, occupation, bio, role",
+      `UPDATE users
+       SET name = $1, phone = $2, location = $3, occupation = $4, bio = $5
+       WHERE id = $6
+       RETURNING id, name, email, phone, location, occupation, bio, role`,
       [name, phone, location, occupation, bio, userId]
     );
+
     res
       .status(200)
       .json({ message: "Perfil atualizado com sucesso", user: updatedUser });
@@ -250,15 +235,25 @@ export const updateProfile = async (
 
 export const getUsers = async (
   req: AuthRequest,
-  res: Response,
-  next: NextFunction
+  res: Response
 ): Promise<void> => {
   try {
-    const users = await db.any(
-      "SELECT id, name, email, phone, location, occupation, bio, role FROM users"
+    if (req.user?.role !== "admin") {
+      res
+        .status(403)
+        .json({ message: "Acesso negado. Apenas administradores." });
+      return;
+    }
+
+    const users = await db.any<User>(
+      `SELECT id, name, email, phone, location, occupation, bio, role, createdAt FROM users ORDER BY name DESC`
     );
+
     res.status(200).json(users);
-  } catch (error) {
-    res.status(500).json({ message: "Erro ao buscar usuários" });
+  } catch (error: any) {
+    console.error("Erro ao buscar usuários:", error);
+    res
+      .status(500)
+      .json({ message: "Erro ao buscar usuários", detail: error.message });
   }
 };

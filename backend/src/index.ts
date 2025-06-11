@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes";
 import commentRoutes from "./routes/commentRoutes";
 import { getUsers } from "./controllers/userController";
+import { authMiddleware } from "./middleware/auth";
 
 dotenv.config();
 
@@ -19,11 +20,14 @@ app.use(
     credentials: true,
   })
 );
+
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/comments", commentRoutes);
-app.get('/api/users', getUsers); // Exemplo de rota protegida
+
+// Protege rota de listagem de usuários com middleware de autenticação
+app.get("/api/users", authMiddleware, getUsers);
 
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);

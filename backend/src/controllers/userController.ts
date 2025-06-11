@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from "express";
+// backend/src/controllers/userController.ts
+import { Request, Response } from "express";
 import db from "../config/database";
 import bcrypt from "bcryptjs";
 
-// Interface para tipar o usuário
 interface User {
   id: number;
   name: string;
@@ -12,48 +12,34 @@ interface User {
   occupation?: string;
   bio?: string;
   role?: string;
-  createdAt?: string; // Garantir compatibilidade
+  createdAt?: string;
 }
 
-// Interface para tipar a requisição
 interface AuthRequest extends Request {
   user?: { id: number; email: string; role?: string };
 }
 
-export const getUsers = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+export const getUsers = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    // Verificar se o usuário é administrador
     if (req.user?.role !== "admin") {
       res.status(403).json({
-        message: "Acesso negado. Apenas administradores podem visualizar todos os usuários.",
+        message: "Acesso negado. Apenas administradores podem visualizar todos os usuários."
       });
       return;
     }
 
-    console.log("Tentando buscar usuários..."); // Log de depuração
     const users = await db.any<User>(
-      `
-      SELECT id, name, email, phone, location, occupation, bio, role, COALESCE(createdAt, CURRENT_TIMESTAMP) AS createdAt
-      FROM users
-      ORDER BY createdAt DESC
-      `
+      `SELECT id, name, email, phone, location, occupation, bio, role, createdAt FROM users ORDER BY name DESC`
     );
 
-    const formattedUsers = users.map((user) => ({
-      ...user,
-      createdAt: user.createdAt ? new Date(user.createdAt).toISOString() : new Date().toISOString(),
-    }));
-
-    console.log("Usuários encontrados:", formattedUsers); // Log de sucesso
-    res.setHeader("Content-Type", "application/json; charset=utf-8");
-    res.status(200).json(formattedUsers);
+    res.status(200).json(users);
   } catch (error: any) {
-    console.error("Erro ao buscar usuários:", { error: error.message, stack: error.stack });
+    console.error("Erro ao buscar usuários:", error);
     res.status(500).json({ message: "Erro ao buscar usuários", detail: error.message });
   }
 };
 
-export const register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const register = async (req: Request, res: Response): Promise<void> => {
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
@@ -70,11 +56,9 @@ export const register = async (req: Request, res: Response, next: NextFunction):
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await db.one(
-      `
-      INSERT INTO users(name, email, password, createdAt, role)
-      VALUES($1, $2, $3, CURRENT_TIMESTAMP, 'user')
-      RETURNING id, name, email
-      `,
+      `INSERT INTO users(name, email, password, createdAt, role)
+       VALUES($1, $2, $3, CURRENT_TIMESTAMP, 'user')
+       RETURNING id, name, email`,
       [name, email, hashedPassword]
     );
 
