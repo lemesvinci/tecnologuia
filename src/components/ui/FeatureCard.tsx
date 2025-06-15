@@ -10,7 +10,7 @@ interface FeatureCardProps {
   description: string;
   to: string;
   image?: string;
-  videoLink?: string; // Corrigido: Adicionada propriedade
+  videoLink?: string;
   accessibilityOptions: {
     highContrast: boolean;
     largeText: boolean;
@@ -22,20 +22,10 @@ interface FeatureCardProps {
   "aria-label": string;
 }
 
-// Variantes para animação com Framer Motion
 const cardVariants = {
   hidden: { opacity: 0, scale: 0.8, y: 20 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: "easeOut" },
-  },
-  hover: {
-    scale: 1.05,
-    boxShadow: "0px 8px 24px rgba(0,0,0,0.2)",
-    transition: { duration: 0.3 },
-  },
+  visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+  hover: { scale: 1.05, boxShadow: "0px 8px 24px rgba(0,0,0,0.2)", transition: { duration: 0.3 } },
 };
 
 const FeatureCard: React.FC<FeatureCardProps> = ({
@@ -58,12 +48,8 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
         whileInView="visible"
         whileHover={accessibilityOptions.reducedMotion ? {} : "hover"}
         viewport={{ once: true }}
-        className={`card p-6 glass hover:shadow-xl transition-all duration-300 ${
-          accessibilityOptions.highContrast
-            ? "bg-gray-900 text-yellow-300"
-            : accessibilityOptions.darkMode
-            ? "bg-gray-800 text-gray-100"
-            : ""
+        className={`card p-6 glass transition-all duration-300 ${
+          accessibilityOptions.highContrast ? "bg-gray-900 text-yellow-300" : ""
         }`}
       >
         {image && (
@@ -85,8 +71,8 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
             } ${accessibilityOptions.largeText ? "w-10 h-10" : ""}`}
           />
           <h3
-            className={`text-xl font-semibold ${
-              accessibilityOptions.largeText ? "text-2xl" : ""
+            className={`font-semibold ${accessibilityOptions.largeText ? "text-2xl" : "text-xl"} ${
+              accessibilityOptions.highContrast ? "text-yellow-300" : "text-white"
             }`}
             tabIndex={0}
           >
@@ -94,12 +80,8 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
           </h3>
         </div>
         <p
-          className={`text-gray-600 mb-2 ${
-            accessibilityOptions.largeText
-              ? "text-lg"
-              : accessibilityOptions.darkMode
-              ? "text-gray-300"
-              : ""
+          className={`mb-2 ${accessibilityOptions.largeText ? "text-lg" : ""} ${
+            accessibilityOptions.highContrast ? "text-yellow-300" : "text-white"
           }`}
           tabIndex={0}
         >
@@ -110,12 +92,12 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
             href={videoLink}
             target="_blank"
             rel="noopener noreferrer"
-            className={`text-blue-600 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-600 block mt-2 ${
+            className={`hover:underline focus:outline-none focus:ring-2 focus:ring-blue-600 block mt-2 ${
               accessibilityOptions.highContrast
                 ? "text-yellow-300"
                 : accessibilityOptions.darkMode
                 ? "text-blue-400"
-                : ""
+                : "text-blue-600"
             }`}
             aria-label={t("featureCard.videoLink")}
           >

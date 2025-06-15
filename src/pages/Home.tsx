@@ -246,19 +246,19 @@ const Home = () => {
           </motion.div>
         </div>
       </motion.section>
-
       {/* Features */}
+      // src/pages/Home.tsx (trecho da seção Features)
       <motion.section
         variants={sectionVariants}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
-        className={`py-16 md:py-24 bg-gray-50 ${
+        className={`py-16 md:py-24 ${
           accessibilityOptions.highContrast
             ? "bg-gray-900 text-yellow-300"
             : accessibilityOptions.darkMode
-            ? "bg-gray-800 text-white"
-            : ""
+            ? "bg-gray-900 text-white"
+            : "bg-white text-gray-900"
         }`}
         role="region"
         aria-label={t("sections.features.label")}
@@ -274,6 +274,12 @@ const Home = () => {
             <h2
               className={`text-3xl md:text-4xl font-bold mb-4 ${
                 accessibilityOptions.largeText ? "text-5xl" : ""
+              } ${
+                accessibilityOptions.highContrast
+                  ? "text-yellow-300"
+                  : accessibilityOptions.darkMode
+                  ? "text-white"
+                  : "text-gray-900"
               }`}
               tabIndex={0}
               aria-level="2"
@@ -281,12 +287,14 @@ const Home = () => {
               {t("features.title")}
             </h2>
             <p
-              className={`text-xl text-gray-600 max-w-3xl mx-auto ${
-                accessibilityOptions.largeText
-                  ? "text-2xl"
+              className={`text-xl max-w-3xl mx-auto ${
+                accessibilityOptions.largeText ? "text-2xl" : ""
+              } ${
+                accessibilityOptions.highContrast
+                  ? "text-yellow-300"
                   : accessibilityOptions.darkMode
                   ? "text-gray-300"
-                  : ""
+                  : "text-gray-600"
               }`}
               tabIndex={0}
             >
@@ -305,8 +313,9 @@ const Home = () => {
             {features.map((feature, index) => (
               <motion.div
                 key={index}
-                variants={cardVariants}
-                whileHover="hover"
+                variants={
+                  accessibilityOptions.reducedMotion ? {} : cardVariants
+                }
               >
                 <FeatureCard
                   icon={feature.icon}
@@ -314,6 +323,7 @@ const Home = () => {
                   description={feature.description}
                   to={feature.to}
                   image={feature.image}
+                  videoLink={feature.videoLink}
                   accessibilityOptions={accessibilityOptions}
                   aria-label={t("features.cardLink", { title: feature.title })}
                 />
@@ -322,7 +332,6 @@ const Home = () => {
           </motion.div>
         </div>
       </motion.section>
-
       {/* CTA Section */}
       <motion.section
         variants={sectionVariants}
@@ -392,7 +401,6 @@ const Home = () => {
           </motion.div>
         </div>
       </motion.section>
-
       {/* Testimonials */}
       <motion.section
         variants={sectionVariants}
@@ -507,7 +515,6 @@ const Home = () => {
           </motion.div>
         </div>
       </motion.section>
-
       {/* Accessibility Menu */}
       <div className="fixed bottom-4 right-4 z-50">
         <motion.button

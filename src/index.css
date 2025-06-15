@@ -14,28 +14,28 @@
     @apply bg-gray-50 text-gray-900 transition-colors duration-300;
   }
 
-  /* Suporte a modo escuro */
+  /* Modo escuro */
   body.dark {
     @apply bg-gray-900 text-gray-100;
   }
 
-  /* Suporte a alto contraste */
+  /* Alto contraste */
   body.high-contrast {
     background: #000 !important;
     color: #ff0 !important;
   }
 
-  /* Suporte a texto grande */
+  /* Texto grande */
   body.large-text {
     font-size: 1.25rem !important;
   }
 
-  /* Suporte a daltonismo */
+  /* Daltonismo */
   body.color-blind {
     filter: contrast(1.2) saturate(0.8);
   }
 
-  /* Desativar animações para preferência de movimento reduzido */
+  /* Movimento reduzido */
   .reduced-motion * {
     animation: none !important;
     transition: none !important;
@@ -66,7 +66,7 @@
     @apply text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors duration-200;
   }
 
-  /* Foco visível para acessibilidade */
+  /* Foco visível */
   :focus-visible {
     @apply outline-none ring-2 ring-primary-500 ring-offset-2;
   }
@@ -94,11 +94,11 @@
   }
 
   .card {
-    @apply bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg dark:bg-gray-800 dark:text-gray-100;
+    @apply bg-white text-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg dark:bg-black dark:text-white;
   }
 
   .glass {
-    @apply bg-white bg-opacity-70 backdrop-blur-md border border-gray-200 border-opacity-50 dark:bg-gray-800 dark:bg-opacity-70 dark:border-gray-600;
+    @apply bg-white text-white border border-gray-200 dark:bg-black dark:border-gray-700;
   }
 
   .input {
