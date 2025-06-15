@@ -13,11 +13,12 @@ interface User {
   id: number;
   email: string;
   name: string;
-  role: string;
+  role: string; // Obrigatório
   phone?: string;
   location?: string;
   occupation?: string;
   bio?: string;
+  createdAt?: string; // Adicionado para compatibilidade com authController
 }
 
 interface AuthContextType {
@@ -39,43 +40,67 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
 
-    console.log("Carregando token do localStorage:", token); // Log 1
-    console.log("Carregando userData do localStorage:", userData); // Log 2
+    console.log("Inicializando AuthProvider:", { token: !!token, userData }); // Log 1
 
     if (token && userData) {
-      // Verificar se o token é válido fazendo uma requisição ao backend
-      axios
-        .get(`${API_URL}/api/auth/profile`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => {
-          const user = response.data;
-          console.log("Dados do usuário carregados: ", user); // Log 3
-          localStorage.setItem("user", JSON.stringify(user)); // Atualizar os dados do usuário
-          axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-          setIsAuthenticated(true);
-          setUser(user);
-        })
-        .catch((err) => {
-          console.error("Token inválido ou expirado:", err);
-          logout(); // Deslogar se o token for inválido
-        });
+      try {
+        const parsedUser = JSON.parse(userData);
+        console.log("Usuário do localStorage:", parsedUser); // Log 2
+        if (!parsedUser.role) {
+          console.warn("Usuário sem role, deslogando...");
+          logout();
+          return;
+        }
+
+        // Verificar token no backend
+        axios
+          .get(`${API_URL}/api/auth/profile`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((response) => {
+            const user = response.data;
+            console.log("Perfil carregado do backend:", user); // Log 3
+            if (!user.role) {
+              console.warn("Perfil sem role, deslogando...");
+              logout();
+              return;
+            }
+            localStorage.setItem("user", JSON.stringify(user));
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+            setIsAuthenticated(true);
+            setUser(user);
+          })
+          .catch((error) => {
+            console.error("Erro ao verificar token:", {
+              message: error.message,
+              response: error.response?.data,
+            });
+            logout();
+          });
+      } catch (error) {
+        console.error("Erro ao parsear userData:", error);
+        logout();
+      }
     }
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<void> => {
     try {
-      console.log("API_URL configurada:", API_URL);
-      console.log("Tentando login com URL:", `${API_URL}/api/auth/login`);
-      console.log("Dados enviados:", { email, password });
+      console.log("Tentando login:", {
+        email,
+        url: `${API_URL}/api/auth/login`,
+      }); // Log 4
       const response = await axios.post(`${API_URL}/api/auth/login`, {
         email,
         password,
       });
       const { token, user } = response.data;
-      console.log("Resposta do backend:", { token, user });
+      console.log("Login bem-sucedido:", { user, token: !!token }); // Log 5
+
+      if (!user.role) {
+        throw new Error("Resposta do login não inclui role");
+      }
+
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -86,27 +111,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status,
-        url: `${API_URL}/api/auth/login`,
       });
       throw new Error(error.response?.data.message || "Erro ao fazer login");
     }
   };
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (
+    name: string,
+    email: string,
+    password: string
+  ): Promise<void> => {
     try {
       const response = await axios.post(`${API_URL}/api/auth/register`, {
         name,
         email,
         password,
       });
-      const { message } = response.data;
-      console.log(message);
+      console.log("Registro bem-sucedido:", response.data.message); // Log 6
     } catch (error: any) {
+      console.error("Erro no registro:", {
+        message: error.message,
+        response: error.response?.data,
+      });
       throw new Error(error.response?.data.message || "Erro ao registrar");
     }
   };
 
   const logout = () => {
+    console.log("Realizando logout..."); // Log 7
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     delete axios.defaults.headers.common["Authorization"];
@@ -117,6 +149,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const updateUser = (userData: Partial<User>) => {
     if (user) {
       const updatedUser = { ...user, ...userData };
+      console.log("Atualizando usuário:", updatedUser); // Log 8
       setUser(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser));
     }
@@ -134,7 +167,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error("useAuth deve ser usado dentro de um AuthProvider");
   }
   return context;
 };

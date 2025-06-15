@@ -5,7 +5,9 @@ import jwt from "jsonwebtoken";
 import db from "../config/database";
 import { sendResetPasswordEmail } from "../config/email";
 
-const JWT_SECRET = process.env.JWT_SECRET || "segredo_jwt";
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET não configurado");
+}
 
 interface User {
   id: number;
@@ -16,36 +18,49 @@ interface User {
   location?: string;
   occupation?: string;
   bio?: string;
-  role?: string;
-  createdAt?: string;
+  role: string; // Obrigatório
+  createdAt: string; // Obrigatório
 }
 
 interface AuthRequest extends Request {
-  user?: { id: number; email: string; role?: string };
+  user?: { id: number; email: string; role: string };
 }
 
+/**
+ * @desc Registra um novo usuário
+ * @route POST /api/auth/register
+ */
 export const register = async (req: Request, res: Response): Promise<void> => {
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
-    res.status(400).json({ message: "Preencha todos os campos" });
+    res.status(400).json({ message: "Preencha todos os campos obrigatórios" });
+    return;
+  }
+
+  // Validação básica de senha
+  if (password.length < 8) {
+    res
+      .status(400)
+      .json({ message: "A senha deve ter pelo menos 8 caracteres" });
     return;
   }
 
   try {
     const existingUser = await db.oneOrNone(
-      "SELECT * FROM users WHERE email = $1",
+      "SELECT id FROM users WHERE email = $1",
       [email]
     );
     if (existingUser) {
-      res.status(400).json({ message: "Email já registrado" });
+      res.status(409).json({ message: "Email já registrado" });
       return;
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await db.one(
-      `INSERT INTO users(name, email, password, createdAt, role)
-       VALUES($1, $2, $3, CURRENT_TIMESTAMP, 'user') RETURNING id, name, email`,
+      `INSERT INTO users(name, email, password, role, created_at)
+       VALUES($1, $2, $3, 'user', NOW())
+       RETURNING id, name, email, role, created_at AS createdAt`,
       [name, email, hashedPassword]
     );
 
@@ -53,43 +68,52 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       .status(201)
       .json({ message: "Usuário registrado com sucesso", user: newUser });
   } catch (error: any) {
-    console.error("Erro:", error);
-    res
-      .status(500)
-      .json({ message: "Erro no servidor", detail: error.message });
+    console.error("Erro ao registrar usuário:", {
+      error: error.message,
+      stack: error.stack,
+    });
+    if (error.code === "23505") {
+      // Violação de unicidade
+      res.status(409).json({ message: "Email já registrado" });
+    } else {
+      res.status(500).json({ message: "Erro interno ao registrar usuário" });
+    }
   }
 };
 
+/**
+ * @desc Autentica um usuário
+ * @route POST /api/auth/login
+ */
 export const login = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    res.status(400).json({ message: "Preencha todos os campos" });
+    res.status(400).json({ message: "Preencha todos os campos obrigatórios" });
     return;
   }
 
   try {
     const user = await db.oneOrNone<User>(
-      "SELECT * FROM users WHERE email = $1",
+      `SELECT id, name, email, password, phone, location, occupation, bio, role, created_at AS createdAt
+       FROM users WHERE email = $1`,
       [email]
     );
     if (!user) {
-      res.status(400).json({ message: "Email ou senha incorretos" });
+      res.status(401).json({ message: "Credenciais inválidas" });
       return;
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      res.status(400).json({ message: "Email ou senha incorretos" });
+      res.status(401).json({ message: "Credenciais inválidas" });
       return;
     }
 
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      JWT_SECRET,
-      {
-        expiresIn: "1h",
-      }
+      process.env.JWT_SECRET!,
+      { expiresIn: "1h" }
     );
 
     res.status(200).json({
@@ -107,34 +131,57 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       },
     });
   } catch (error: any) {
-    console.error("Erro:", error);
-    res
-      .status(500)
-      .json({ message: "Erro no servidor", detail: error.message });
+    console.error("Erro ao fazer login:", {
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({ message: "Erro interno ao fazer login" });
   }
 };
 
+/**
+ * @desc Realiza logout (client-side)
+ * @route POST /api/auth/logout
+ */
 export const logout = (_req: Request, res: Response): void => {
   res.status(200).json({ message: "Logout realizado com sucesso" });
 };
 
+/**
+ * @desc Obtém o perfil do usuário autenticado
+ * @route GET /api/auth/profile
+ */
 export const getProfile = async (
   req: AuthRequest,
   res: Response
 ): Promise<void> => {
   const userId = req.user?.id;
 
+  if (!userId) {
+    res.status(401).json({ message: "Usuário não autenticado" });
+    return;
+  }
+
   try {
-    const user = await db.one(
-      "SELECT id, name, email, phone, location, occupation, bio, role FROM users WHERE id = $1",
+    const user = await db.one<User>(
+      `SELECT id, name, email, phone, location, occupation, bio, role, created_at AS createdAt
+       FROM users WHERE id = $1`,
       [userId]
     );
     res.status(200).json(user);
-  } catch (error) {
-    res.status(500).json({ message: "Erro ao buscar perfil" });
+  } catch (error: any) {
+    console.error("Erro ao buscar perfil:", {
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({ message: "Erro interno ao buscar perfil" });
   }
 };
 
+/**
+ * @desc Solicita redefinição de senha
+ * @route POST /api/auth/forgot-password
+ */
 export const forgotPassword = async (
   req: Request,
   res: Response
@@ -147,7 +194,7 @@ export const forgotPassword = async (
   }
 
   try {
-    const user = await db.oneOrNone("SELECT * FROM users WHERE email = $1", [
+    const user = await db.oneOrNone("SELECT id FROM users WHERE email = $1", [
       email,
     ]);
     if (!user) {
@@ -155,7 +202,7 @@ export const forgotPassword = async (
       return;
     }
 
-    const resetToken = jwt.sign({ userId: user.id }, JWT_SECRET, {
+    const resetToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, {
       expiresIn: "1h",
     });
     await db.none("UPDATE users SET reset_token = $1 WHERE id = $2", [
@@ -167,12 +214,19 @@ export const forgotPassword = async (
     res
       .status(200)
       .json({ message: "Email de redefinição enviado com sucesso" });
-  } catch (error) {
-    console.error("Erro ao processar esqueci minha senha:", error);
-    res.status(500).json({ message: "Erro ao processar solicitação" });
+  } catch (error: any) {
+    console.error("Erro ao processar esqueci minha senha:", {
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({ message: "Erro interno ao processar solicitação" });
   }
 };
 
+/**
+ * @desc Redefine a senha com token
+ * @route POST /api/auth/reset-password
+ */
 export const resetPassword = async (
   req: Request,
   res: Response
@@ -184,10 +238,19 @@ export const resetPassword = async (
     return;
   }
 
+  if (newPassword.length < 8) {
+    res
+      .status(400)
+      .json({ message: "A nova senha deve ter pelo menos 8 caracteres" });
+    return;
+  }
+
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: number };
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+      userId: number;
+    };
     const user = await db.oneOrNone(
-      "SELECT * FROM users WHERE id = $1 AND reset_token = $2",
+      "SELECT id FROM users WHERE id = $1 AND reset_token = $2",
       [decoded.userId, token]
     );
 
@@ -203,12 +266,21 @@ export const resetPassword = async (
     );
 
     res.status(200).json({ message: "Senha redefinida com sucesso" });
-  } catch (error) {
-    console.error("Erro ao redefinir senha:", error);
-    res.status(500).json({ message: "Erro ao redefinir senha" });
+  } catch (error: any) {
+    console.error("Erro ao redefinir senha:", {
+      error: error.message,
+      stack: error.stack,
+    });
+    res
+      .status(400)
+      .json({ message: "Token inválido ou erro ao redefinir senha" });
   }
 };
 
+/**
+ * @desc Atualiza o perfil do usuário
+ * @route PUT /api/auth/profile
+ */
 export const updateProfile = async (
   req: AuthRequest,
   res: Response
@@ -216,44 +288,59 @@ export const updateProfile = async (
   const userId = req.user?.id;
   const { name, phone, location, occupation, bio } = req.body;
 
+  if (!userId) {
+    res.status(401).json({ message: "Usuário não autenticado" });
+    return;
+  }
+
   try {
     const updatedUser = await db.one(
       `UPDATE users
-       SET name = $1, phone = $2, location = $3, occupation = $4, bio = $5
+       SET name = COALESCE($1, name), phone = COALESCE($2, phone), location = COALESCE($3, location),
+           occupation = COALESCE($4, occupation), bio = COALESCE($5, bio)
        WHERE id = $6
-       RETURNING id, name, email, phone, location, occupation, bio, role`,
+       RETURNING id, name, email, phone, location, occupation, bio, role, created_at AS createdAt`,
       [name, phone, location, occupation, bio, userId]
     );
 
     res
       .status(200)
       .json({ message: "Perfil atualizado com sucesso", user: updatedUser });
-  } catch (error) {
-    res.status(500).json({ message: "Erro ao atualizar perfil" });
+  } catch (error: any) {
+    console.error("Erro ao atualizar perfil:", {
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({ message: "Erro interno ao atualizar perfil" });
   }
 };
 
+/**
+ * @desc Lista todos os usuários (apenas admin)
+ * @route GET /api/auth/users
+ */
 export const getUsers = async (
   req: AuthRequest,
   res: Response
 ): Promise<void> => {
+  if (!req.user || req.user.role !== "admin") {
+    res
+      .status(403)
+      .json({ message: "Apenas administradores podem acessar esta rota" });
+    return;
+  }
+
   try {
-    if (req.user?.role !== "admin") {
-      res
-        .status(403)
-        .json({ message: "Acesso negado. Apenas administradores." });
-      return;
-    }
-
     const users = await db.any<User>(
-      `SELECT id, name, email, phone, location, occupation, bio, role, createdAt FROM users ORDER BY name DESC`
+      `SELECT id, name, email, phone, location, occupation, bio, role, created_at AS createdAt
+       FROM users ORDER BY name ASC`
     );
-
     res.status(200).json(users);
   } catch (error: any) {
-    console.error("Erro ao buscar usuários:", error);
-    res
-      .status(500)
-      .json({ message: "Erro ao buscar usuários", detail: error.message });
+    console.error("Erro ao buscar usuários:", {
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({ message: "Erro interno ao buscar usuários" });
   }
 };
