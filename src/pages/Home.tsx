@@ -20,7 +20,6 @@ const Home = () => {
       description: "Guias completos sobre componentes, montagem e manutenção de computadores.",
       to: "/hardware",
       image: "https://images.pexels.com/photos/2582937/pexels-photo-2582937.jpeg?auto=compress&cs=tinysrgb&w=600",
-      videoLink: "https://www.youtube.com/cursoemvideo",
     },
     {
       icon: Code,
@@ -28,7 +27,6 @@ const Home = () => {
       description: "Tutoriais de linguagens de programação e desenvolvimento de software.",
       to: "/programacao",
       image: "https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=1600",
-      videoLink: "https://www.youtube.com/cursoemvideo",
     },
     {
       icon: Smartphone,
@@ -36,7 +34,6 @@ const Home = () => {
       description: "Dicas, reviews e comparativos de smartphones e aplicativos.",
       to: "/mobile",
       image: "https://images.pexels.com/photos/607812/pexels-photo-607812.jpeg?auto=compress&cs=tinysrgb&w=1600",
-      videoLink: "https://www.youtube.com/cursoemvideo",
     },
     {
       icon: BookOpen,
@@ -44,7 +41,6 @@ const Home = () => {
       description: "Cursos online para aprimorar suas habilidades tecnológicas.",
       to: "/cursos",
       image: "https://images.pexels.com/photos/267885/pexels-photo-267885.jpeg?auto=compress&cs=tinysrgb&w=1600",
-      videoLink: "https://www.youtube.com/cursoemvideo",
     },
     {
       icon: Zap,
@@ -52,7 +48,6 @@ const Home = () => {
       description: "Últimas notícias e tendências do mundo da tecnologia.",
       to: "/noticias",
       image: "https://images.pexels.com/photos/518543/pexels-photo-518543.jpeg?auto=compress&cs=tinysrgb&w=1600",
-      videoLink: "https://www.youtube.com/cursoemvideo",
     },
     {
       icon: Users,
@@ -60,7 +55,6 @@ const Home = () => {
       description: "Conecte-se com outros entusiastas e profissionais de tecnologia.",
       to: "/comunidade",
       image: "https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=1600",
-      videoLink: "https://www.youtube.com/cursoemvideo",
     },
     {
       icon: Terminal,
@@ -68,7 +62,6 @@ const Home = () => {
       description: "Aprenda sobre o sistema operacional Linux, sua instalação e comandos.",
       to: "/linux-intro",
       image: "https://images.pexels.com/photos/1181397/pexels-photo-1181397.jpeg?auto=compress&cs=tinysrgb&w=1600",
-      videoLink: "https://www.youtube.com/cursoemvideo",
     },
   ];
 
@@ -191,7 +184,8 @@ const Home = () => {
                 delay={index * 100}
                 to={feature.to}
                 image={feature.image}
-                videoLink={feature.videoLink}
+                accessibilityOptions={accessibilityOptions}
+              aria-label={`Ir para ${feature.title}`}
               />
             ))}
           </div>
