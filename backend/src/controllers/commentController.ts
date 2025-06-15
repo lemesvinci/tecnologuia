@@ -213,6 +213,10 @@ export const deleteComment = async (
     res.status(400).json({ message: "ID do comentário inválido" });
     return;
   }
+  if (userRole !== "admin") {
+    res.status(403).json({ message: "Apenas administradores podem excluir comentários" });
+    return;
+  }
 
   const commentId = Number(id);
 
@@ -227,24 +231,12 @@ export const deleteComment = async (
       return;
     }
 
-    if (comment.userId !== userId && userRole !== "admin") {
-      res
-        .status(403)
-        .json({
-          message: "Você não tem permissão para excluir este comentário",
-        });
-      return;
-    }
-
     await db.none("DELETE FROM comments WHERE id = $1", [commentId]);
 
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.status(200).json({ message: "Comentário excluído com sucesso" });
   } catch (error: any) {
-    console.error("Erro ao excluir comentário:", {
-      error: error.message,
-      stack: error.stack,
-    });
+    console.error("Erro ao excluir comentário:", { error: error.message, stack: error.stack });
     res.status(500).json({ message: "Erro interno ao excluir comentário" });
   }
 };

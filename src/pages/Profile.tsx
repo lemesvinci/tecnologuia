@@ -24,7 +24,7 @@ const Profile = () => {
     name: user?.name || '',
     email: user?.email || '',
     phone: '',
-    location: 'São Paulo, Brasil',
+    location: 'Campo Grande, MS - Brasil',
     occupation: 'Desenvolvedor Web',
     bio: 'Entusiasta de tecnologia e desenvolvimento web. Adoro aprender novas tecnologias e compartilhar conhecimento.',
   });
