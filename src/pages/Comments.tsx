@@ -148,22 +148,42 @@ const Comments = () => {
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
-    return isNaN(date.getTime()) ? "Data indisponível" : date.toLocaleString("pt-BR", {
-      timeZone: "UTC",
-    });
+    return isNaN(date.getTime())
+      ? "Data indisponível"
+      : date.toLocaleString("pt-BR", {
+          timeZone: "UTC",
+        });
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" role="main" aria-label="Fórum de Comentários sobre Áreas de TI">
-      <h1 className="text-3xl font-bold mb-8" tabIndex={0} aria-level="1">Comentários sobre Áreas de TI</h1>
+    <div
+      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"
+      role="main"
+      aria-label="Fórum de Comentários sobre Áreas de TI"
+    >
+      <h1 className="text-3xl font-bold mb-8" tabIndex={0} aria-level="1">
+        Comentários sobre Áreas de TI
+      </h1>
 
-      {error && <p className="text-red-600 mb-6" role="alert">{error}</p>}
-      {success && <p className="text-green-600 mb-6" role="status">{success}</p>}
+      {error && (
+        <p className="text-red-600 mb-6" role="alert">
+          {error}
+        </p>
+      )}
+      {success && (
+        <p className="text-green-600 mb-6" role="status">
+          {success}
+        </p>
+      )}
 
       {!isAuthenticated ? (
         <p className="text-gray-600">
           Você precisa estar logado para adicionar ou visualizar comentários.{" "}
-          <Link to="/login" className="text-blue-600 hover:underline" aria-label="Faça login aqui">
+          <Link
+            to="/login"
+            className="text-blue-600 hover:underline"
+            aria-label="Faça login aqui"
+          >
             Faça login aqui
           </Link>
           .
@@ -171,8 +191,18 @@ const Comments = () => {
       ) : (
         <>
           {/* Seleção de Áreas */}
-          <div className="mb-8" role="navigation" aria-label="Seleção de Áreas de TI">
-            <h2 className="text-xl font-semibold mb-4" tabIndex={0} aria-level="2">Escolha uma Área de TI</h2>
+          <div
+            className="mb-8"
+            role="navigation"
+            aria-label="Seleção de Áreas de TI"
+          >
+            <h2
+              className="text-xl font-semibold mb-4"
+              tabIndex={0}
+              aria-level="2"
+            >
+              Escolha uma Área de TI
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {areas.length > 0 ? (
                 areas.map((area) => (
@@ -180,7 +210,9 @@ const Comments = () => {
                     key={area.id}
                     onClick={() => setSelectedArea(area.id)}
                     className={`p-3 border rounded-lg focus:outline-none focus:ring-2 ${
-                      selectedArea === area.id ? "bg-blue-100 ring-blue-600" : "bg-white hover:bg-gray-100"
+                      selectedArea === area.id
+                        ? "bg-blue-100 ring-blue-600"
+                        : "bg-white hover:bg-gray-100"
                     }`}
                     style={{ minHeight: "60px" }}
                     aria-label={`Selecionar ${area.name}`}
@@ -208,12 +240,22 @@ const Comments = () => {
           </div>
 
           {/* Formulário para adicionar comentários */}
-          <div className="bg-white p-6 rounded-lg shadow mb-8" role="form" aria-label="Adicionar Comentário">
-            <h2 className="text-xl font-semibold mb-4" tabIndex={0} aria-level="2">Adicionar Comentário</h2>
+          <div
+            className="bg-white p-6 rounded-lg shadow mb-8"
+            role="form"
+            aria-label="Adicionar Comentário"
+          >
+            <h2
+              className="text-xl font-semibold mb-4"
+              tabIndex={0}
+              aria-level="2"
+            >
+              Adicionar Comentário
+            </h2>
             <form onSubmit={handleSubmit}>
               <textarea
                 value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
+                onChange={(e: { target: { value: any; }; }) => setNewComment(e.target.value)}
                 placeholder="Digite seu comentário sobre esta área de TI..."
                 className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-black bg-white"
                 rows={4}
@@ -232,10 +274,15 @@ const Comments = () => {
           </div>
 
           {/* Lista de comentários */}
-          <div className="space-y-6" role="region" aria-label="Lista de Comentários">
+          <div
+            className="space-y-6"
+            role="region"
+            aria-label="Lista de Comentários"
+          >
             {comments.length === 0 ? (
               <p className="text-gray-600" role="status">
-                Nenhum comentário encontrado para esta área. Seja o primeiro a comentar!
+                Nenhum comentário encontrado para esta área. Seja o primeiro a
+                comentar!
               </p>
             ) : (
               comments.map((comment) => (
@@ -246,12 +293,14 @@ const Comments = () => {
                 >
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h4 className="font-semibold" tabIndex={0}>{comment.userName}</h4>
+                      <h4 className="font-semibold" tabIndex={0}>
+                        {comment.userName}
+                      </h4>
                       <p className="text-gray-500 text-sm" tabIndex={0}>
                         {formatDate(comment.createdAt)}
                       </p>
                     </div>
-                    {(comment.userId === user?.id || user?.role === "admin") && (
+                    {user?.role === "admin" && (
                       <button
                         onClick={() => handleDelete(comment.id)}
                         className="text-red-600 hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-600"
@@ -263,7 +312,9 @@ const Comments = () => {
                       </button>
                     )}
                   </div>
-                  <p className="text-gray-700" tabIndex={0}>{comment.content}</p>
+                  <p className="text-gray-700" tabIndex={0}>
+                    {comment.content}
+                  </p>
                 </div>
               ))
             )}

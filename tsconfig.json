@@ -1,4 +1,16 @@
 {
+  "compilerOptions": {
+    "target": "es5",
+    "module": "esnext",
+    "jsx": "react-jsx", // Essencial para React 17+
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "lib": ["dom", "esnext"] // Inclui tipos para DOM e ESNext
+  },
+  "include": ["src/**/*", "src/declarations.d.ts"],
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
