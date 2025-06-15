@@ -1,10 +1,20 @@
 import { Request, Response, NextFunction } from "express";
 import db from "../config/database";
 
+// Interface para requisição autenticada
 interface CommentRequest extends Request {
-  user?: { id: number; email: string; role?: string };
+  user?: { id: number; email: string; role: string }; // Role é obrigatório
 }
 
+// Interface para área
+interface Area {
+  id: number;
+  name: string;
+  description: string;
+  videoLink?: string; // Compatível com Comments.tsx
+}
+
+// Interface para comentário (padroniza camelCase)
 interface Comment {
   id: number;
   content: string;
@@ -14,12 +24,7 @@ interface Comment {
   userName: string;
 }
 
-interface Area {
-  id: number;
-  name: string;
-  description: string;
-}
-
+// Formata data para ISO
 const formatDateToISO = (
   dateInput: string | Date | undefined | null
 ): string => {
@@ -33,25 +38,46 @@ const formatDateToISO = (
   return date.toISOString();
 };
 
+// Valida se a área existe no banco
+const validateAreaId = async (areaId: number): Promise<boolean> => {
+  const area = await db.oneOrNone("SELECT id FROM areas WHERE id = $1", [
+    areaId,
+  ]);
+  return !!area;
+};
+
+/**
+ * @desc Retorna todas as áreas disponíveis
+ * @route GET /api/comments/areas
+ */
 export const getAreas = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
-    const areas = [
-      { id: 1, name: "Desenvolvimento de Software", description: "Área focada em desenvolvimento de aplicativos." },
-      { id: 2, name: "Cibersegurança", description: "Área de proteção contra ameaças digitais." },
-      { id: 3, name: "Inteligência Artificial", description: "Área de IA e aprendizado de máquina." },
-    ];
+    const areas: Area[] = await db.any(
+      "SELECT id, name, description, video_link AS videoLink FROM areas"
+    );
+    if (areas.length === 0) {
+      res.status(404).json({ message: "Nenhuma área encontrada" });
+      return;
+    }
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.status(200).json(areas);
   } catch (error: any) {
-    console.error("Erro ao buscar áreas:", { error: error.message, stack: error.stack });
-    res.status(500).json({ message: "Erro ao buscar áreas" });
+    console.error("Erro ao buscar áreas:", {
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({ message: "Erro interno ao buscar áreas" });
   }
 };
 
+/**
+ * @desc Retorna comentários de uma área específica
+ * @route GET /api/comments?areaId=:id
+ */
 export const getComments = async (
   req: Request,
   res: Response,
@@ -64,16 +90,28 @@ export const getComments = async (
     return;
   }
 
+  const areaIdNum = Number(areaId);
+  if (!(await validateAreaId(areaIdNum))) {
+    res.status(404).json({ message: "Área não encontrada" });
+    return;
+  }
+
   try {
-    const comments = await db.any<Comment>(
+    const comments: Comment[] = await db.any(
       `
-      SELECT comments.id, comments.content, comments.createdAt, comments.userId, comments.areaId, users.name AS userName
-      FROM comments
-      JOIN users ON comments.userId = users.id
-      WHERE comments.areaId = $1 AND comments.createdAt IS NOT NULL
-      ORDER BY comments.createdAt DESC
+      SELECT 
+        c.id, 
+        c.content, 
+        c.created_at AS "createdAt", 
+        c.user_id AS "userId", 
+        c.area_id AS "areaId", 
+        u.name AS "userName"
+      FROM comments c
+      JOIN users u ON c.user_id = u.id
+      WHERE c.area_id = $1
+      ORDER BY c.created_at DESC
     `,
-      [Number(areaId)]
+      [areaIdNum]
     );
 
     const formattedComments = comments.map((comment) => ({
@@ -84,57 +122,80 @@ export const getComments = async (
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.status(200).json(formattedComments);
   } catch (error: any) {
-    console.error("Erro ao buscar comentários:", { error: error.message, stack: error.stack });
-    res.status(500).json({ message: "Erro ao buscar comentários" });
+    console.error("Erro ao buscar comentários:", {
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({ message: "Erro interno ao buscar comentários" });
   }
 };
 
+/**
+ * @desc Cria um novo comentário
+ * @route POST /api/comments
+ */
 export const createComment = async (
   req: CommentRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const { content, areaId } = req.body; // Alterado de areaIds para areaId
+  const { content, areaId } = req.body;
   const userId = req.user?.id;
-
-  console.log("Requisição recebida:", { content, areaId, userId }); // Depuração
+  const userName = req.user?.email; // Ajuste para username, se disponível
 
   if (!userId) {
     res.status(401).json({ message: "Usuário não autenticado" });
     return;
   }
-  if (!content || !areaId || isNaN(Number(areaId)) || ![1, 2, 3].includes(Number(areaId))) {
-    res.status(400).json({ message: "Conteúdo e um areaId válido (1, 2 ou 3) são obrigatórios" });
+  if (!content || !areaId || isNaN(Number(areaId))) {
+    res.status(400).json({ message: "Conteúdo e ID da área são obrigatórios" });
+    return;
+  }
+
+  const areaIdNum = Number(areaId);
+  if (!(await validateAreaId(areaIdNum))) {
+    res.status(404).json({ message: "Área não encontrada" });
     return;
   }
 
   try {
-    const createdAt = new Date();
-    const newComment = await db.one(
-      "INSERT INTO comments(content, userId, areaId, createdAt) VALUES($1, $2, $3, $4) RETURNING id, content, userId, areaId, createdAt",
-      [content, userId, Number(areaId), createdAt]
-    );
-
-    const commentWithUser = await db.one<Comment>(
+    const newComment = await db.one<Comment>(
       `
-      SELECT comments.id, comments.content, comments.createdAt, comments.userId, comments.areaId, users.name AS userName
-      FROM comments
-      JOIN users ON comments.userId = users.id
-      WHERE comments.id = $1
+      INSERT INTO comments(content, user_id, area_id, created_at)
+      VALUES($1, $2, $3, NOW())
+      RETURNING 
+        id, 
+        content, 
+        created_at AS "createdAt", 
+        user_id AS "userId", 
+        area_id AS "areaId",
+        (SELECT name FROM users WHERE id = $2) AS "userName"
     `,
-      [newComment.id]
+      [content, userId, areaIdNum]
     );
 
-    commentWithUser.createdAt = formatDateToISO(commentWithUser.createdAt);
+    newComment.createdAt = formatDateToISO(newComment.createdAt);
 
     res.setHeader("Content-Type", "application/json; charset=utf-8");
-    res.status(201).json(commentWithUser);
+    res.status(201).json(newComment);
   } catch (error: any) {
-    console.error("Erro ao criar comentário:", { error: error.message, stack: error.stack });
-    res.status(500).json({ message: `Erro ao criar comentário: ${error.message}` });
+    console.error("Erro ao criar comentário:", {
+      error: error.message,
+      stack: error.stack,
+    });
+    if (error.code === "23503") {
+      // Violação de chave estrangeira
+      res.status(400).json({ message: "Área ou usuário inválido" });
+    } else {
+      res.status(500).json({ message: "Erro interno ao criar comentário" });
+    }
   }
 };
 
+/**
+ * @desc Exclui um comentário
+ * @route DELETE /api/comments/:id
+ */
 export const deleteComment = async (
   req: CommentRequest,
   res: Response,
@@ -153,10 +214,12 @@ export const deleteComment = async (
     return;
   }
 
+  const commentId = Number(id);
+
   try {
-    const comment = await db.oneOrNone(
-      "SELECT userId FROM comments WHERE id = $1",
-      [Number(id)]
+    const comment = await db.oneOrNone<{ userId: number; areaId: number }>(
+      "SELECT user_id AS userId, area_id AS areaId FROM comments WHERE id = $1",
+      [commentId]
     );
 
     if (!comment) {
@@ -173,12 +236,15 @@ export const deleteComment = async (
       return;
     }
 
-    await db.none("DELETE FROM comments WHERE id = $1", [Number(id)]);
+    await db.none("DELETE FROM comments WHERE id = $1", [commentId]);
 
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.status(200).json({ message: "Comentário excluído com sucesso" });
   } catch (error: any) {
-    console.error("Erro ao excluir comentário:", { error: error.message, stack: error.stack });
-    res.status(500).json({ message: "Erro ao excluir comentário" });
+    console.error("Erro ao excluir comentário:", {
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({ message: "Erro interno ao excluir comentário" });
   }
 };
