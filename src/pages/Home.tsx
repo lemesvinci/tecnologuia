@@ -247,7 +247,6 @@ const Home = () => {
         </div>
       </motion.section>
       {/* Features */}
-      // src/pages/Home.tsx (trecho da seção Features)
       <motion.section
         variants={sectionVariants}
         initial="hidden"
