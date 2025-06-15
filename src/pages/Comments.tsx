@@ -23,6 +23,7 @@ interface Comment {
 
 const Comments = () => {
   const { isAuthenticated, user, logout } = useAuth();
+  console.log("Usuário autenticado:", { isAuthenticated, user });
   const navigate = useNavigate();
   const [areas, setAreas] = useState<Area[]>([]);
   const [selectedArea, setSelectedArea] = useState<number | null>(null); // Mudança para uma única área
@@ -255,7 +256,9 @@ const Comments = () => {
             <form onSubmit={handleSubmit}>
               <textarea
                 value={newComment}
-                onChange={(e: { target: { value: any; }; }) => setNewComment(e.target.value)}
+                onChange={(e: { target: { value: any } }) =>
+                  setNewComment(e.target.value)
+                }
                 placeholder="Digite seu comentário sobre esta área de TI..."
                 className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-black bg-white"
                 rows={4}
