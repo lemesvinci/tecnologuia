@@ -16,11 +16,7 @@ interface User {
 
 const tableVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, staggerChildren: 0.1 },
-  },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, staggerChildren: 0.1 } },
 };
 
 const rowVariants = {
@@ -91,11 +87,7 @@ const Users = () => {
       <div className="max-w-7xl mx-auto px-4 py-12 text-center">
         <p className="text-gray-600">
           {t("users.unauthorized")}{" "}
-          <Link
-            to="/login"
-            className="text-blue-600 hover:underline"
-            aria-label={t("users.loginLink")}
-          >
+          <Link to="/login" className="text-blue-600 hover:underline" aria-label={t("users.loginLink")}>
             {t("users.loginLink")}
           </Link>
           .
@@ -105,11 +97,7 @@ const Users = () => {
   }
 
   return (
-    <div
-      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"
-      role="main"
-      aria-label={t("users.title")}
-    >
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" role="main" aria-label={t("users.title")}>
       <motion.h1
         className="text-3xl font-bold mb-8"
         initial={{ opacity: 0, y: -20 }}
