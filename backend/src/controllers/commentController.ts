@@ -3,7 +3,7 @@ import db from "../config/database";
 
 // Interface para requisição autenticada
 interface CommentRequest extends Request {
-  user?: { id: number; email: string; role: string }; // Role é obrigatório
+  user?: { id: number; email: string; role: string };
 }
 
 // Interface para área
@@ -11,7 +11,7 @@ interface Area {
   id: number;
   name: string;
   description: string;
-  videoLink?: string; // Compatível com Comments.tsx
+  videoLink?: string;
 }
 
 // Interface para comentário (padroniza camelCase)
@@ -24,18 +24,30 @@ interface Comment {
   userName: string;
 }
 
-// Formata data para ISO
-const formatDateToISO = (
+// Formata data para o formato do frontend (DD/MM/YYYY HH:mm)
+const formatDateToFrontend = (
   dateInput: string | Date | undefined | null
 ): string => {
   if (!dateInput) {
-    return new Date().toISOString();
+    return new Intl.DateTimeFormat("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(new Date());
   }
   const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
   if (isNaN(date.getTime())) {
     throw new Error(`Formato de data inválido: ${dateInput}`);
   }
-  return date.toISOString();
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
 };
 
 // Valida se a área existe no banco
@@ -57,7 +69,7 @@ export const getAreas = async (
 ): Promise<void> => {
   try {
     const areas: Area[] = await db.any(
-      "SELECT id, name, description, video_link AS videoLink FROM areas"
+      "SELECT id, name, description, COALESCE(video_link, '') AS videoLink FROM areas"
     );
     if (areas.length === 0) {
       res.status(404).json({ message: "Nenhuma área encontrada" });
@@ -105,9 +117,9 @@ export const getComments = async (
         c.created_at AS "createdAt", 
         c.user_id AS "userId", 
         c.area_id AS "areaId", 
-        u.name AS "userName"
+        COALESCE(u.name, 'Usuário Desconhecido') AS "userName"
       FROM comments c
-      JOIN users u ON c.user_id = u.id
+      LEFT JOIN users u ON c.user_id = u.id
       WHERE c.area_id = $1
       ORDER BY c.created_at DESC
     `,
@@ -116,7 +128,7 @@ export const getComments = async (
 
     const formattedComments = comments.map((comment) => ({
       ...comment,
-      createdAt: formatDateToISO(comment.createdAt),
+      createdAt: formatDateToFrontend(comment.createdAt),
     }));
 
     res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -141,7 +153,6 @@ export const createComment = async (
 ): Promise<void> => {
   const { content, areaId } = req.body;
   const userId = req.user?.id;
-  const userName = req.user?.email; // Ajuste para username, se disponível
 
   if (!userId) {
     res.status(401).json({ message: "Usuário não autenticado" });
@@ -169,12 +180,12 @@ export const createComment = async (
         created_at AS "createdAt", 
         user_id AS "userId", 
         area_id AS "areaId",
-        (SELECT name FROM users WHERE id = $2) AS "userName"
+        (SELECT COALESCE(name, 'Usuário Desconhecido') FROM users WHERE id = $2) AS "userName"
     `,
       [content, userId, areaIdNum]
     );
 
-    newComment.createdAt = formatDateToISO(newComment.createdAt);
+    newComment.createdAt = formatDateToFrontend(newComment.createdAt);
 
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.status(201).json(newComment);
@@ -184,7 +195,6 @@ export const createComment = async (
       stack: error.stack,
     });
     if (error.code === "23503") {
-      // Violação de chave estrangeira
       res.status(400).json({ message: "Área ou usuário inválido" });
     } else {
       res.status(500).json({ message: "Erro interno ao criar comentário" });
@@ -214,7 +224,9 @@ export const deleteComment = async (
     return;
   }
   if (userRole !== "admin") {
-    res.status(403).json({ message: "Apenas administradores podem excluir comentários" });
+    res
+      .status(403)
+      .json({ message: "Apenas administradores podem excluir comentários" });
     return;
   }
 
@@ -236,7 +248,10 @@ export const deleteComment = async (
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.status(200).json({ message: "Comentário excluído com sucesso" });
   } catch (error: any) {
-    console.error("Erro ao excluir comentário:", { error: error.message, stack: error.stack });
+    console.error("Erro ao excluir comentário:", {
+      error: error.message,
+      stack: error.stack,
+    });
     res.status(500).json({ message: "Erro interno ao excluir comentário" });
   }
 };

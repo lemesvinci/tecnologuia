@@ -6,6 +6,36 @@ i18next.use(initReactI18next).init({
   resources: {
     pt: {
       translation: {
+        comments: {
+          title: "Comentários sobre Áreas de TI",
+          fetchAreasError: "Erro ao carregar áreas",
+          fetchCommentsError: "Erro ao carregar comentários",
+          emptyComment: "O comentário não pode estar vazio",
+          noAreaSelected: "Selecione uma área para comentar",
+          addSuccess: "Comentário adicionado com sucesso",
+          deleteSuccess: "Comentário excluído com sucesso",
+          requestError: "Erro ao processar a requisição",
+          sessionExpired: "Sessão expirada. Faça login novamente.",
+          dateUnavailable: "Data indisponível",
+          unauthorized:
+            "Você precisa estar logado para adicionar ou visualizar comentários.",
+          loginLink: "Faça login aqui",
+          selectArea: "Escolha uma Área de TI",
+          selectAreaLabel: "Selecionar {{name}}",
+          videoLink: "Videoaula",
+          videoLinkLabel: "Videoaula sobre {{name}}",
+          addComment: "Adicionar Comentário",
+          placeholder: "Digite seu comentário sobre esta área de TI...",
+          commentInput: "Digite seu comentário",
+          submitComment: "Enviar Comentário",
+          commentList: "Lista de Comentários",
+          noComments:
+            "Nenhum comentário encontrado para esta área. Seja o primeiro a comentar!",
+          unknownUser: "Usuário Desconhecido",
+          deleteConfirm: "Tem certeza que deseja excluir este comentário?",
+          deleteComment: "Excluir este comentário",
+          loadingAreas: "Carregando áreas...",
+        },
         hero: {
           title: "Seu guia confiável no mundo da tecnologia",
           description:
@@ -105,6 +135,35 @@ i18next.use(initReactI18next).init({
     },
     en: {
       translation: {
+        comments: {
+          title: "Comments on IT Areas",
+          fetchAreasError: "Failed to load areas",
+          fetchCommentsError: "Failed to load comments",
+          emptyComment: "The comment cannot be empty",
+          noAreaSelected: "Select an area to comment",
+          addSuccess: "Comment added successfully",
+          deleteSuccess: "Comment deleted successfully",
+          requestError: "Error processing the request",
+          sessionExpired: "Session expired. Please log in again.",
+          dateUnavailable: "Date unavailable",
+          unauthorized: "You need to be logged in to add or view comments.",
+          loginLink: "Log in here",
+          selectArea: "Choose an IT Area",
+          selectAreaLabel: "Select {{name}}",
+          videoLink: "Video Lesson",
+          videoLinkLabel: "Video lesson on {{name}}",
+          addComment: "Add Comment",
+          placeholder: "Type your comment about this IT area...",
+          commentInput: "Type your comment",
+          submitComment: "Submit Comment",
+          commentList: "List of Comments",
+          noComments:
+            "No comments found for this area. Be the first to comment!",
+          unknownUser: "Unknown User",
+          deleteConfirm: "Are you sure you want to delete this comment?",
+          deleteComment: "Delete this comment",
+          loadingAreas: "Loading areas...",
+        },
         hero: {
           title: "Your trusted guide in the world of technology",
           description:
