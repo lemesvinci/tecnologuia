@@ -1,11 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // frontend/src/pages/Login.tsx
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LogIn, AlertCircle } from "lucide-react";
+import { LogIn, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
-import FormInput from "../components/ui/FormInput";
-import Button from "../components/ui/Button";
 import axios from "axios";
 import { API_URL } from "../config/api";
 
@@ -21,7 +18,6 @@ interface FormErrors {
 }
 
 const Login = () => {
-  console.log("API_URL usada no Login.tsx:", API_URL);
   const { login } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
@@ -30,6 +26,7 @@ const Login = () => {
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotMessage, setForgotMessage] = useState<string | null>(null);
@@ -62,21 +59,17 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) return;
 
     setIsLoading(true);
     try {
-      console.log("Tentando login com:", formData);
       await login(formData.email, formData.password);
-      console.log("Login bem-sucedido, redirecionando para /home");
       navigate("/profile");
     } catch (error: unknown) {
       const message =
         error instanceof Error
           ? error.message
           : "Falha no login. Verifique suas credenciais.";
-      console.error("Erro ao fazer login:", message);
       setErrors({ general: message });
     } finally {
       setIsLoading(false);
@@ -113,80 +106,107 @@ const Login = () => {
       style={{ backgroundImage: "url('fundo_site.png')" }}
     >
       <div className="absolute inset-0 bg-black opacity-50 z-0" />
-      <div className="relative z-10 max-w-md w-full space-y-8 card p-8 bg-white bg-opacity-90 rounded shadow-md animate-fade-in">
+      <div className="relative z-10 max-w-md w-full space-y-6 bg-white bg-opacity-90 p-8 rounded-xl shadow-xl">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 mb-1">
             Bem-vindo de volta
           </h1>
-          <p className="text-gray-600">Entre na sua conta Tecnologuia</p>
+          <p className="text-gray-600 text-sm">
+            Entre na sua conta Tecnologuia
+          </p>
         </div>
 
         {errors.general && (
-          <div className="bg-red-50 text-red-800 p-4 rounded-md flex items-center">
-            <AlertCircle size={20} className="mr-2" />
+          <div className="bg-red-100 text-red-800 p-3 rounded flex items-center">
+            <AlertCircle className="w-5 h-5 mr-2" />
             {errors.general}
           </div>
         )}
 
         {forgotMessage && (
-          <div className="bg-green-50 text-green-800 p-4 rounded-md flex items-center">
-            <AlertCircle size={20} className="mr-2" />
+          <div className="bg-green-100 text-green-800 p-3 rounded flex items-center">
+            <AlertCircle className="w-5 h-5 mr-2" />
             {forgotMessage}
           </div>
         )}
 
         {!forgotPassword ? (
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-            <FormInput
-              id="email"
-              label="Email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="seu@email.com"
-              required
-              error={errors.email}
-              autoComplete="email"
-            />
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Email *
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full mt-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              {errors.email && (
+                <p className="text-sm text-red-600 mt-1">{errors.email}</p>
+              )}
+            </div>
 
-            <FormInput
-              id="password"
-              label="Senha"
-              type="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-              required
-              error={errors.password}
-              autoComplete="current-password"
-            />
+            <div className="relative">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Senha *
+              </label>
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full mt-1 p-3 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
+                aria-label="Mostrar ou ocultar senha"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+              {errors.password && (
+                <p className="text-sm text-red-600 mt-1">{errors.password}</p>
+              )}
+            </div>
 
             <div className="text-right">
               <button
                 type="button"
                 onClick={() => setForgotPassword(true)}
-                className="text-sm text-primary-600 hover:underline"
+                className="text-sm text-blue-600 hover:underline"
               >
                 Esqueci minha senha
               </button>
             </div>
 
-            <Button
+            <button
               type="submit"
-              variant="primary"
-              isLoading={isLoading}
-              fullWidth
+              disabled={isLoading}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg flex justify-center items-center gap-2 hover:bg-blue-700 transition"
             >
-              <LogIn size={18} className="mr-2" />
+              <LogIn size={18} />
               Entrar
-            </Button>
+            </button>
 
-            <div className="text-center mt-4">
+            <div className="text-center">
               <p className="text-sm text-gray-600">
                 Não tem uma conta?{" "}
                 <Link
                   to="/register"
-                  className="text-primary-600 hover:text-primary-700 font-medium"
+                  className="text-blue-600 hover:underline font-medium"
                 >
                   Registre-se
                 </Link>
@@ -194,26 +214,36 @@ const Login = () => {
             </div>
           </form>
         ) : (
-          <form className="mt-8 space-y-6" onSubmit={handleForgotPassword}>
-            <FormInput
-              id="forgotEmail"
-              label="Digite seu email"
-              type="email"
-              value={forgotEmail}
-              onChange={(e) => setForgotEmail(e.target.value)}
-              placeholder="seu@email.com"
-              required
-            />
+          <form onSubmit={handleForgotPassword} className="space-y-5">
+            <div>
+              <label
+                htmlFor="forgotEmail"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Digite seu email
+              </label>
+              <input
+                id="forgotEmail"
+                type="email"
+                value={forgotEmail}
+                onChange={(e) => setForgotEmail(e.target.value)}
+                className="w-full mt-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
 
-            <Button type="submit" variant="primary" fullWidth>
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
+            >
               Enviar Email de Redefinição
-            </Button>
+            </button>
 
-            <div className="text-center mt-4">
+            <div className="text-center">
               <button
                 type="button"
                 onClick={() => setForgotPassword(false)}
-                className="text-sm text-primary-600 hover:underline"
+                className="text-sm text-blue-600 hover:underline"
               >
                 Voltar ao login
               </button>
