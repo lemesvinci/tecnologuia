@@ -180,14 +180,14 @@ h2 {
   margin-bottom: 1.5rem;
 }
 
-/* Estilos para links */
+/* Estilos para links (corrigido para remover sublinhado padrão) */
 a {
   color: var(--accent-color);
-  text-decoration: underline;
+  text-decoration: none; /* Remove sublinhado padrão */
 }
 
 a:hover {
-  text-decoration: none;
+  text-decoration: underline; /* Sublinhado apenas no hover */
 }
 
 .dark a {
@@ -238,7 +238,6 @@ a:hover {
 
 /* Ajustes responsivos */
 @media (max-width: 640px) {
-
   th,
   td {
     padding-left: 1rem;
@@ -247,7 +246,6 @@ a:hover {
 }
 
 @layer base {
-
   /* Força a aplicação do tema escuro se necessário */
   html {
     transition: all 0.3s;
