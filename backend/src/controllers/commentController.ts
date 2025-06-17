@@ -1,4 +1,3 @@
-// backend/src/controllers/commentController.ts
 import { Request, Response, NextFunction } from "express";
 import db from "../config/database";
 
@@ -110,6 +109,7 @@ export const getComments = async (
   }
 
   try {
+    console.log("getComments - areaId:", areaIdNum);
     const comments: Comment[] = await db.any(
       `
       SELECT 
@@ -126,12 +126,14 @@ export const getComments = async (
     `,
       [areaIdNum]
     );
+    console.log("getComments - raw comments:", comments);
 
     const formattedComments = comments.map((comment) => ({
       ...comment,
       createdAt: formatDateToFrontend(comment.createdAt),
     }));
 
+    console.log("getComments - formatted comments:", formattedComments);
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.status(200).json(formattedComments);
   } catch (error: any) {
@@ -154,7 +156,9 @@ export const createComment = async (
 ): Promise<void> => {
   const { content, areaId } = req.body;
   const userId = req.user?.id;
+
   console.log("createComment - req.user:", req.user);
+  console.log("createComment - req.body:", { content, areaId });
 
   if (!userId) {
     res.status(401).json({ message: "Usuário não autenticado" });
@@ -186,8 +190,10 @@ export const createComment = async (
     `,
       [content, userId, areaIdNum]
     );
+    console.log("createComment - newComment before formatting:", newComment);
 
     newComment.createdAt = formatDateToFrontend(newComment.createdAt);
+    console.log("createComment - newComment after formatting:", newComment);
 
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.status(201).json(newComment);
@@ -217,6 +223,9 @@ export const deleteComment = async (
   const userId = req.user?.id;
   const userRole = req.user?.role;
 
+  console.log("deleteComment - req.user:", req.user);
+  console.log("deleteComment - commentId:", id);
+
   if (!userId) {
     res.status(401).json({ message: "Usuário não autenticado" });
     return;
@@ -239,6 +248,7 @@ export const deleteComment = async (
       "SELECT userid AS userId, area_id AS areaId FROM comments WHERE id = $1",
       [commentId]
     );
+    console.log("deleteComment - comment found:", comment);
 
     if (!comment) {
       res.status(404).json({ message: "Comentário não encontrado" });
@@ -246,6 +256,7 @@ export const deleteComment = async (
     }
 
     await db.none("DELETE FROM comments WHERE id = $1", [commentId]);
+    console.log("deleteComment - comment deleted:", commentId);
 
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.status(200).json({ message: "Comentário excluído com sucesso" });

@@ -42,31 +42,31 @@ db.connect()
 const initTables = async () => {
   try {
     await db.none(`
-      CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
-        email TEXT NOT NULL UNIQUE,
-        password TEXT NOT NULL,
-        phone TEXT,
-        location TEXT,
-        occupation TEXT,
-        bio TEXT,
-        role TEXT DEFAULT 'user',
-        reset_token TEXT,
-        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
+  CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL,
+    phone TEXT,
+    location TEXT,
+    occupation TEXT,
+    bio TEXT,
+    role TEXT DEFAULT 'user',
+    reset_token TEXT,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+
     await db.none(`
-      CREATE TABLE IF NOT EXISTS comments (
-        id SERIAL PRIMARY KEY,
-        content TEXT NOT NULL,
-        userId INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        areaId INTEGER NOT NULL,
-        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        createdAt TIMESTAMP NOT NULL,
-        FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
-      );
-    `);
+  CREATE TABLE IF NOT EXISTS comments (
+    id SERIAL PRIMARY KEY,
+    content TEXT NOT NULL,
+    userId INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    areaId INTEGER NOT NULL REFERENCES areas(id) ON DELETE CASCADE,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+
     console.log("Tabelas verificadas/criadas com sucesso");
   } catch (err) {
     console.error("Erro ao criar tabelas:", err);
