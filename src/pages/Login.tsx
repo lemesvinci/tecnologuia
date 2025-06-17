@@ -143,6 +143,8 @@ const Login = () => {
                 id="email"
                 name="email"
                 type="email"
+                placeholder="Digite seu email"
+                autoComplete="email"
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full mt-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -164,6 +166,8 @@ const Login = () => {
                 id="password"
                 name="password"
                 type={showPassword ? "text" : "password"}
+                placeholder="Digite sua senha"
+                autoComplete="current-password"
                 value={formData.password}
                 onChange={handleChange}
                 className="w-full mt-1 p-3 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"

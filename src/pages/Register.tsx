@@ -1,10 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+// frontend/src/pages/Register.tsx
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserPlus, AlertCircle } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
-import FormInput from "../components/ui/FormInput";
-import Button from "../components/ui/Button";
 
 interface FormData {
   name: string;
@@ -74,7 +72,6 @@ const Register = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) return;
 
     setIsLoading(true);
@@ -93,117 +90,161 @@ const Register = () => {
   return (
     <div
       className="min-h-screen flex items-center justify-center relative bg-cover bg-center"
-      style={{ backgroundImage: "url('fundo_site.png')" }} // ajuste se estiver em public
+      style={{ backgroundImage: "url('fundo_site.png')" }}
     >
-      {/* camada escura transparente */}
       <div className="absolute inset-0 bg-black opacity-50 z-0" />
 
-      {/* conteúdo visível */}
-      <div className="relative z-10 max-w-md w-full space-y-8 card p-8 bg-white bg-opacity-90 rounded shadow-md animate-fade-in">
+      <div className="relative z-10 max-w-md w-full bg-white bg-opacity-90 rounded-xl p-8 shadow-xl space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Crie sua conta
-          </h1>
-          <p className="text-gray-600">Junte-se à comunidade Tecnologuia</p>
+          <h1 className="text-3xl font-bold text-gray-900">Crie sua conta</h1>
+          <p className="text-gray-600 text-sm mt-1">
+            Junte-se à comunidade Tecnologuia
+          </p>
         </div>
 
         {errors.general && (
-          <div className="bg-red-50 text-red-800 p-4 rounded-md flex items-center">
-            <AlertCircle size={20} className="mr-2" />
+          <div className="bg-red-100 text-red-800 p-3 rounded flex items-center">
+            <AlertCircle className="w-5 h-5 mr-2" />
             {errors.general}
           </div>
         )}
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <FormInput
-            id="name"
-            label="Nome completo"
-            type="text"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="Seu nome completo"
-            required
-            error={errors.name}
-            autoComplete="name"
-          />
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Nome */}
+          <div>
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Nome completo
+            </label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Seu nome"
+              className="w-full mt-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+            {errors.name && (
+              <p className="text-sm text-red-600 mt-1">{errors.name}</p>
+            )}
+          </div>
 
-          <FormInput
-            id="email"
-            label="Email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="seu@email.com"
-            required
-            error={errors.email}
-            autoComplete="email"
-          />
+          {/* Email */}
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="seu@email.com"
+              className="w-full mt-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+            {errors.email && (
+              <p className="text-sm text-red-600 mt-1">{errors.email}</p>
+            )}
+          </div>
 
-          <FormInput
-            id="password"
-            label="Senha"
-            type="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="••••••••"
-            required
-            error={errors.password}
-            autoComplete="new-password"
-          />
+          {/* Senha */}
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Senha
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="••••••••"
+              className="w-full mt-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+            {errors.password && (
+              <p className="text-sm text-red-600 mt-1">{errors.password}</p>
+            )}
+          </div>
 
-          <FormInput
-            id="confirmPassword"
-            label="Confirmar senha"
-            type="password"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            placeholder="••••••••"
-            required
-            error={errors.confirmPassword}
-            autoComplete="new-password"
-          />
+          {/* Confirmar Senha */}
+          <div>
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Confirmar senha
+            </label>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="••••••••"
+              className="w-full mt-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+            {errors.confirmPassword && (
+              <p className="text-sm text-red-600 mt-1">
+                {errors.confirmPassword}
+              </p>
+            )}
+          </div>
 
-          <div className="flex items-center">
+          {/* Termos */}
+          <div className="flex items-start text-sm text-gray-600">
             <input
               id="terms"
               name="terms"
               type="checkbox"
-              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
               required
+              className="mt-1 mr-2 h-4 w-4 text-blue-600 border-gray-300 rounded"
             />
-            <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
+            <label htmlFor="terms">
               Concordo com os{" "}
-              <a href="#" className="text-primary-600 hover:underline">
+              <a href="#" className="text-blue-600 hover:underline">
                 Termos de Uso
               </a>{" "}
               e{" "}
-              <a href="#" className="text-primary-600 hover:underline">
+              <a href="#" className="text-blue-600 hover:underline">
                 Política de Privacidade
               </a>
+              .
             </label>
           </div>
 
-          <Button
+          {/* Botão */}
+          <button
             type="submit"
-            variant="primary"
-            isLoading={isLoading}
-            fullWidth
+            disabled={isLoading}
+            className="w-full bg-blue-600 text-white py-3 rounded-lg flex justify-center items-center gap-2 hover:bg-blue-700 transition"
           >
-            <UserPlus size={18} className="mr-2" />
+            <UserPlus size={18} />
             Criar conta
-          </Button>
+          </button>
 
-          <div className="text-center mt-4">
-            <p className="text-sm text-gray-600">
-              Já tem uma conta?{" "}
-              <Link
-                to="/login"
-                className="text-primary-600 hover:text-primary-700 font-medium"
-              >
-                Faça login
-              </Link>
-            </p>
-          </div>
+          <p className="text-center text-sm text-gray-600 mt-4">
+            Já tem uma conta?{" "}
+            <Link
+              to="/login"
+              className="text-blue-600 hover:underline font-medium"
+            >
+              Faça login
+            </Link>
+          </p>
         </form>
       </div>
     </div>
