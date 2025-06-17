@@ -1,8 +1,8 @@
 // frontend/src/i18n.ts
-import i18next from "i18next";
+import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
-i18next.use(initReactI18next).init({
+i18n.use(initReactI18next).init({
   resources: {
     pt: {
       translation: {
@@ -131,6 +131,23 @@ i18next.use(initReactI18next).init({
           pt: "Português",
           en: "Inglês",
         },
+        users: {
+          // Adicionado o namespace users
+          title: "Lista de Usuários",
+          name: "Nome",
+          email: "Email",
+          createdAt: "Data de Criação",
+          role: "Cargo",
+          admin: "Admin",
+          user: "Usuário",
+          loading: "Carregando...",
+          fetchError: "Erro ao carregar usuários",
+          unauthorized: "Você não tem permissão",
+          loginLink: "Faça login",
+          dateUnavailable: "Data indisponível",
+          noUsers: "Nenhum usuário encontrado",
+          unknownUser: "Usuário Desconhecido",
+        },
       },
     },
     en: {
@@ -256,6 +273,23 @@ i18next.use(initReactI18next).init({
           pt: "Portuguese",
           en: "English",
         },
+        users: {
+          // Adicionado o namespace users para o idioma en
+          title: "List of Users",
+          name: "Name",
+          email: "Email",
+          createdAt: "Creation Date",
+          role: "Role",
+          admin: "Admin",
+          user: "User",
+          loading: "Loading...",
+          fetchError: "Failed to load users",
+          unauthorized: "You do not have permission",
+          loginLink: "Log in",
+          dateUnavailable: "Date unavailable",
+          noUsers: "No users found",
+          unknownUser: "Unknown User",
+        },
       },
     },
   },
@@ -264,4 +298,5 @@ i18next.use(initReactI18next).init({
   interpolation: { escapeValue: false },
 });
 
-export default i18next;
+// Exporta a instância i18n para uso em outros arquivos
+export default i18n;
