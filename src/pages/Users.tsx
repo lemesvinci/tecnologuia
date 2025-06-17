@@ -49,7 +49,6 @@ const Users = () => {
         if (!response.ok) throw new Error(t("users.fetchError"));
         const data = await response.json();
         setUsers(data);
-        console.log("Usuários carregados:", data); // Log para depuração
       } catch (err: any) {
         setError(err.message || t("users.fetchError"));
       } finally {
@@ -68,6 +67,9 @@ const Users = () => {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "America/Sao_Paulo", // Alinha com -04
       }).format(date);
     } catch {
       return t("users.dateUnavailable");
@@ -111,46 +113,46 @@ const Users = () => {
       {error && (
         <motion.p
           className="text-red-600 mb-6"
-          role="alert"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
+          role="alert"
         >
           {error}
-        </motion.p>
+        </p>
       )}
 
       <motion.div
-        className="bg-white shadow overflow-hidden rounded-lg"
+        className="bg-white dark:bg-gray-800 shadow overflow-hidden rounded-lg"
         variants={tableVariants}
         initial="hidden"
         animate="visible"
       >
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                 tabIndex={0}
                 scope="col"
               >
                 {t("users.name")}
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                 tabIndex={0}
                 scope="col"
               >
                 {t("users.email")}
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                 tabIndex={0}
                 scope="col"
               >
                 {t("users.createdAt")}
               </th>
               <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                 tabIndex={0}
                 scope="col"
               >
@@ -158,24 +160,24 @@ const Users = () => {
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             {users.map((user) => (
               <motion.tr
                 key={user.id}
-                className="hover:bg-gray-50"
+                className="hover:bg-gray-50 dark:hover:bg-gray-700"
                 variants={rowVariants}
                 role="row"
               >
-                <td className="px-6 py-4 whitespace-nowrap" tabIndex={0}>
+                <td className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100" tabIndex={0}>
                   {user.name}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap" tabIndex={0}>
+                <td className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100" tabIndex={0}>
                   {user.email}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap" tabIndex={0}>
+                <td className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100" tabIndex={0}>
                   {formatDate(user.createdAt)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap" tabIndex={0}>
+                <td className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100" tabIndex={0}>
                   {user.role === "admin" ? t("users.admin") : t("users.user")}
                 </td>
               </motion.tr>
@@ -183,7 +185,7 @@ const Users = () => {
           </tbody>
         </table>
         {users.length === 0 && (
-          <p className="text-gray-600 text-center py-4" role="status">
+          <p className="text-gray-600 dark:text-gray-300 text-center py-4" role="status">
             {t("users.noUsers")}
           </p>
         )}
