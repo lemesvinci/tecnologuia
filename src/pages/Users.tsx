@@ -67,8 +67,9 @@ const Users = () => {
     fetchUsers();
   }, [isAuthenticated, user, navigate, t, token]);
 
-  const formatDate = (dateString: string): string => {
+  const formatDate = (dateString: string | null): string => {
     try {
+      if (!dateString) throw new Error("Data ausente");
       const date = new Date(dateString);
       if (isNaN(date.getTime())) throw new Error("Data inválida");
       return new Intl.DateTimeFormat("pt-BR", {

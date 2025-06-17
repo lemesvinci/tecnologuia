@@ -1,3 +1,4 @@
+// backend/src/controllers/commentController.ts
 import { Request, Response, NextFunction } from "express";
 import db from "../config/database";
 
@@ -117,7 +118,7 @@ export const getComments = async (
         c.created_at AS "createdAt", 
         c.userid AS "userId", 
         c.area_id AS "areaId", 
-        COALESCE(u.name, 'Usuário Desconhecido') AS "userName"
+        COALESCE(u.name, 'Usuário Desconhecido') AS "user_name"
       FROM comments c
       LEFT JOIN users u ON c.userid = u.id
       WHERE c.area_id = $1
@@ -180,7 +181,7 @@ export const createComment = async (
         created_at AS "createdAt", 
         userid AS "userId", 
         area_id AS "areaId",
-        (SELECT COALESCE(name, 'Usuário Desconhecido') FROM users WHERE id = $2) AS "userName"
+        (SELECT COALESCE(name, 'Usuário Desconhecido') FROM users WHERE id = $2) AS "user_name"
     `,
       [content, userId, areaIdNum]
     );
