@@ -16,7 +16,11 @@ interface User {
 
 const tableVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, staggerChildren: 0.1 } },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, staggerChildren: 0.1 },
+  },
 };
 
 const rowVariants = {
@@ -69,7 +73,7 @@ const Users = () => {
         year: "numeric",
         hour: "2-digit",
         minute: "2-digit",
-        timeZone: "America/Sao_Paulo", // Alinha com -04
+        timeZone: "America/Sao_Paulo",
       }).format(date);
     } catch {
       return t("users.dateUnavailable");
@@ -89,7 +93,11 @@ const Users = () => {
       <div className="max-w-7xl mx-auto px-4 py-12 text-center">
         <p className="text-gray-600">
           {t("users.unauthorized")}{" "}
-          <Link to="/login" className="text-blue-600 hover:underline" aria-label={t("users.loginLink")}>
+          <Link
+            to="/login"
+            className="text-blue-600 hover:underline"
+            aria-label={t("users.loginLink")}
+          >
             {t("users.loginLink")}
           </Link>
           .
@@ -99,7 +107,11 @@ const Users = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" role="main" aria-label={t("users.title")}>
+    <div
+      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"
+      role="main"
+      aria-label={t("users.title")}
+    >
       <motion.h1
         className="text-3xl font-bold mb-8"
         initial={{ opacity: 0, y: -20 }}
@@ -118,7 +130,7 @@ const Users = () => {
           role="alert"
         >
           {error}
-        </p>
+        </motion.p>
       )}
 
       <motion.div
@@ -168,16 +180,28 @@ const Users = () => {
                 variants={rowVariants}
                 role="row"
               >
-                <td className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100" tabIndex={0}>
+                <td
+                  className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100"
+                  tabIndex={0}
+                >
                   {user.name}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100" tabIndex={0}>
+                <td
+                  className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100"
+                  tabIndex={0}
+                >
                   {user.email}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100" tabIndex={0}>
+                <td
+                  className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100"
+                  tabIndex={0}
+                >
                   {formatDate(user.createdAt)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100" tabIndex={0}>
+                <td
+                  className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100"
+                  tabIndex={0}
+                >
                   {user.role === "admin" ? t("users.admin") : t("users.user")}
                 </td>
               </motion.tr>
@@ -185,7 +209,10 @@ const Users = () => {
           </tbody>
         </table>
         {users.length === 0 && (
-          <p className="text-gray-600 dark:text-gray-300 text-center py-4" role="status">
+          <p
+            className="text-gray-600 dark:text-gray-300 text-center py-4"
+            role="status"
+          >
             {t("users.noUsers")}
           </p>
         )}
