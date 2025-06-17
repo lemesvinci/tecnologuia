@@ -24,8 +24,17 @@ interface FeatureCardProps {
 
 const cardVariants = {
   hidden: { opacity: 0, scale: 0.8, y: 20 },
-  visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
-  hover: { scale: 1.05, boxShadow: "0px 8px 24px rgba(0,0,0,0.2)", transition: { duration: 0.3 } },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" },
+  },
+  hover: {
+    scale: 1.05,
+    boxShadow: "0px 8px 24px rgba(0,0,0,0.2)",
+    transition: { duration: 0.3 },
+  },
 };
 
 const FeatureCard: React.FC<FeatureCardProps> = ({
@@ -71,8 +80,14 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
             } ${accessibilityOptions.largeText ? "w-10 h-10" : ""}`}
           />
           <h3
-            className={`font-semibold ${accessibilityOptions.largeText ? "text-2xl" : "text-xl"} ${
-              accessibilityOptions.highContrast ? "text-yellow-300" : "text-white"
+            className={`font-semibold ${
+              accessibilityOptions.largeText ? "text-2xl" : "text-xl"
+            } ${
+              accessibilityOptions.highContrast
+                ? "text-yellow-300"
+                : accessibilityOptions.darkMode
+                ? "text-gray-100"
+                : "text-black"
             }`}
             tabIndex={0}
           >
@@ -81,7 +96,11 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
         </div>
         <p
           className={`mb-2 ${accessibilityOptions.largeText ? "text-lg" : ""} ${
-            accessibilityOptions.highContrast ? "text-yellow-300" : "text-white"
+            accessibilityOptions.highContrast
+              ? "text-yellow-300"
+              : accessibilityOptions.darkMode
+              ? "text-gray-300"
+              : "text-gray-700"
           }`}
           tabIndex={0}
         >
