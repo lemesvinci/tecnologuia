@@ -154,6 +154,7 @@ export const createComment = async (
 ): Promise<void> => {
   const { content, areaId } = req.body;
   const userId = req.user?.id;
+  console.log("createComment - req.user:", req.user);
 
   if (!userId) {
     res.status(401).json({ message: "Usuário não autenticado" });
