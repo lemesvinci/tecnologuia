@@ -94,11 +94,11 @@
   }
 
   .card {
-    @apply bg-white text-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg dark:bg-black dark:text-white;
+    @apply bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg dark:bg-black;
   }
 
   .glass {
-    @apply bg-white text-white border border-gray-200 dark:bg-black dark:border-gray-700;
+    @apply bg-white border border-gray-200 dark:bg-black dark:border-gray-700;
   }
 
   .input {
