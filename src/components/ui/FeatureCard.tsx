@@ -57,8 +57,8 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
         whileInView="visible"
         whileHover={accessibilityOptions.reducedMotion ? {} : "hover"}
         viewport={{ once: true }}
-        className={`card p-6 glass transition-all duration-300 ${
-          accessibilityOptions.highContrast ? "bg-gray-900 text-yellow-300" : ""
+        className={`card p-6 glass transition-all duration-300 bg-white ${
+          accessibilityOptions.highContrast ? "border border-yellow-300" : ""
         }`}
       >
         {image && (
@@ -72,36 +72,22 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
         <div className="flex items-center mb-4">
           <Icon
             className={`w-8 h-8 mr-3 ${
-              accessibilityOptions.highContrast
-                ? "text-yellow-300"
-                : accessibilityOptions.darkMode
-                ? "text-primary-400"
-                : "text-primary-600"
-            } ${accessibilityOptions.largeText ? "w-10 h-10" : ""}`}
+              accessibilityOptions.largeText ? "w-10 h-10" : ""
+            } text-black`}
           />
           <h3
             className={`font-semibold ${
               accessibilityOptions.largeText ? "text-2xl" : "text-xl"
-            } ${
-              accessibilityOptions.highContrast
-                ? "text-yellow-300"
-                : accessibilityOptions.darkMode
-                ? "text-gray-100"
-                : "text-black"
-            }`}
+            } text-black`}
             tabIndex={0}
           >
             {title}
           </h3>
         </div>
         <p
-          className={`mb-2 ${accessibilityOptions.largeText ? "text-lg" : ""} ${
-            accessibilityOptions.highContrast
-              ? "text-yellow-300"
-              : accessibilityOptions.darkMode
-              ? "text-gray-300"
-              : "text-gray-700"
-          }`}
+          className={`mb-2 ${
+            accessibilityOptions.largeText ? "text-lg" : ""
+          } text-black`}
           tabIndex={0}
         >
           {description}
@@ -111,13 +97,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
             href={videoLink}
             target="_blank"
             rel="noopener noreferrer"
-            className={`hover:underline focus:outline-none focus:ring-2 focus:ring-blue-600 block mt-2 ${
-              accessibilityOptions.highContrast
-                ? "text-yellow-300"
-                : accessibilityOptions.darkMode
-                ? "text-blue-400"
-                : "text-blue-600"
-            }`}
+            className="hover:underline focus:outline-none focus:ring-2 focus:ring-blue-600 block mt-2 text-blue-600"
             aria-label={t("featureCard.videoLink")}
           >
             {t("featureCard.videoLink")}
