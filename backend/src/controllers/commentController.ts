@@ -118,7 +118,7 @@ export const getComments = async (
         c.createdat AS "createdAt", 
         c.userid AS "userId", 
         c.areaid AS "areaId", 
-        COALESCE(u.name, 'Usuário Desconhecido') AS "user_name"
+        COALESCE(u.name, 'Anônimo') AS "user_name"
       FROM comments c
       LEFT JOIN users u ON c.userid = u.id
       WHERE c.areaid = $1
@@ -186,7 +186,7 @@ export const createComment = async (
         created_at AS "createdAt", 
         userid AS "userId", 
         area_id AS "areaId",
-        (SELECT COALESCE(name, 'Usuário Desconhecido') FROM users WHERE id = $2) AS "user_name"
+        (SELECT COALESCE(name, 'Anônimo') FROM users WHERE id = $2) AS "user_name"
     `,
       [content, userId, areaIdNum]
     );

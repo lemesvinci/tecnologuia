@@ -31,7 +31,7 @@ i18n.use(initReactI18next).init({
           commentList: "Lista de Comentários",
           noComments:
             "Nenhum comentário encontrado para esta área. Seja o primeiro a comentar!",
-          unknownUser: "Usuário Desconhecido",
+          unknownUser: "Anônimo",
           deleteConfirm: "Tem certeza que deseja excluir este comentário?",
           deleteComment: "Excluir este comentário",
           loadingAreas: "Carregando áreas...",
@@ -146,7 +146,7 @@ i18n.use(initReactI18next).init({
           loginLink: "Faça login",
           dateUnavailable: "Data indisponível",
           noUsers: "Nenhum usuário encontrado",
-          unknownUser: "Usuário Desconhecido",
+          unknownUser: "Anônimo",
         },
       },
     },
