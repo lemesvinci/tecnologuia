@@ -24,6 +24,7 @@ interface User {
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
+  token: string | null; // Adicionado para gerenciar o token
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -35,14 +36,20 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(
+    localStorage.getItem("token")
+  );
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const storedToken = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
 
-    console.log("Inicializando AuthProvider:", { token: !!token, userData }); // Log 1
+    console.log("Inicializando AuthContext:", {
+      token: !!storedToken,
+      userData,
+    }); // Log 1
 
-    if (token && userData) {
+    if (storedToken && userData) {
       try {
         const parsedUser = JSON.parse(userData);
         console.log("Usuário do localStorage:", parsedUser); // Log 2
@@ -55,7 +62,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Verificar token no backend
         axios
           .get(`${API_URL}/api/auth/profile`, {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${storedToken}` },
           })
           .then((response) => {
             const user = response.data;
@@ -66,9 +73,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               return;
             }
             localStorage.setItem("user", JSON.stringify(user));
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+            axios.defaults.headers.common[
+              "Authorization"
+            ] = `Bearer ${storedToken}`;
             setIsAuthenticated(true);
             setUser(user);
+            setToken(storedToken); // Atualiza o token no estado
           })
           .catch((error) => {
             console.error("Erro ao verificar token:", {
@@ -106,6 +116,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       setIsAuthenticated(true);
       setUser(user);
+      setToken(token); // Atualiza o token no estado
     } catch (error: any) {
       console.error("Erro no login:", {
         message: error.message,
@@ -144,6 +155,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     delete axios.defaults.headers.common["Authorization"];
     setIsAuthenticated(false);
     setUser(null);
+    setToken(null); // Limpa o token no estado
   };
 
   const updateUser = (userData: Partial<User>) => {
@@ -157,7 +169,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, user, login, register, logout, updateUser }}
+      value={{
+        isAuthenticated,
+        user,
+        token,
+        login,
+        register,
+        logout,
+        updateUser,
+      }}
     >
       {children}
     </AuthContext.Provider>

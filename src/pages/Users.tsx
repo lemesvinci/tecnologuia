@@ -29,9 +29,9 @@ const rowVariants = {
 };
 
 const Users = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, token } = useAuth(); // Adiciona token do AuthContext
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -46,12 +46,16 @@ const Users = () => {
       try {
         const response = await fetch(`${API_URL}/api/auth/users`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`, // Usa token do AuthContext
             "Content-Type": "application/json; charset=utf-8",
           },
         });
-        if (!response.ok) throw new Error(t("users.fetchError"));
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText || t("users.fetchError"));
+        }
         const data = await response.json();
+        if (!Array.isArray(data)) throw new Error(t("users.fetchError"));
         setUsers(data);
       } catch (err: any) {
         setError(err.message || t("users.fetchError"));
@@ -61,11 +65,9 @@ const Users = () => {
     };
 
     fetchUsers();
-  }, [isAuthenticated, user, navigate, t]);
+  }, [isAuthenticated, user, navigate, t, token]);
 
   const formatDate = (dateString: string): string => {
-    if (!dateString) return t("users.dateUnavailable");
-
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) throw new Error("Data inválida");
@@ -175,49 +177,52 @@ const Users = () => {
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            {users.map((user) => (
-              <motion.tr
-                key={user.id}
-                className="hover:bg-gray-50 dark:hover:bg-gray-700"
-                variants={rowVariants}
-                role="row"
-              >
-                <td
-                  className="px-6 py-4 whitespace-nowrap text-black dark:text-gray-100"
-                  tabIndex={0}
+            {users.length > 0 ? (
+              users.map((user) => (
+                <motion.tr
+                  key={user.id}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                  variants={rowVariants}
+                  role="row"
                 >
-                  {user.name}
-                </td>
+                  <td
+                    className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100"
+                    tabIndex={0}
+                  >
+                    {user.name || t("users.unknownUser")}
+                  </td>
+                  <td
+                    className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100"
+                    tabIndex={0}
+                  >
+                    {user.email || "N/A"}
+                  </td>
+                  <td
+                    className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100"
+                    tabIndex={0}
+                  >
+                    {formatDate(user.createdAt)}
+                  </td>
+                  <td
+                    className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100"
+                    tabIndex={0}
+                  >
+                    {user.role === "admin" ? t("users.admin") : t("users.user")}
+                  </td>
+                </motion.tr>
+              ))
+            ) : (
+              <tr>
                 <td
-                  className="px-6 py-4 whitespace-nowrap text-black dark:text-gray-100"
-                  tabIndex={0}
+                  colSpan={4}
+                  className="px-6 py-4 text-center text-gray-600 dark:text-gray-300"
                 >
-                  {user.email}
+                  {t("users.noUsers")}
                 </td>
-                <td
-                  className="px-6 py-4 whitespace-nowrap text-black dark:text-gray-100"
-                  tabIndex={0}
-                >
-                  {formatDate(user.createdAt)}
-                </td>
-                <td
-                  className="px-6 py-4 whitespace-nowrap text-black dark:text-gray-100"
-                  tabIndex={0}
-                >
-                  {user.role === "admin" ? t("users.admin") : t("users.user")}
-                </td>
-              </motion.tr>
-            ))}
+              </tr>
+            )}
           </tbody>
         </table>
-        {users.length === 0 && (
-          <p
-            className="text-gray-600 dark:text-gray-300 text-center py-4"
-            role="status"
-          >
-            {t("users.noUsers")}
-          </p>
-        )}
       </motion.div>
     </div>
   );

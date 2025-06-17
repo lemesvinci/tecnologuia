@@ -1,9 +1,12 @@
 // backend/src/controllers/authController.ts
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import db from "../config/database";
 import { sendResetPasswordEmail } from "../config/email";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 if (!process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET não configurado");
@@ -14,12 +17,12 @@ interface User {
   name: string;
   email: string;
   password: string;
-  phone?: string;
-  location?: string;
-  occupation?: string;
-  bio?: string;
-  role: string; // Obrigatório
-  createdAt: string; // Obrigatório
+  phone?: string | null;
+  location?: string | null;
+  occupation?: string | null;
+  bio?: string | null;
+  role: string;
+  createdAt: string;
 }
 
 interface AuthRequest extends Request {
@@ -27,22 +30,68 @@ interface AuthRequest extends Request {
 }
 
 /**
+ * Valida se a senha atende aos critérios de segurança
+ * @param password Senha a ser validada
+ * @returns Objeto com status e mensagem de erro, se aplicável
+ */
+const validatePassword = (password: string) => {
+  const minLength = 12;
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasLowerCase = /[a-z]/.test(password);
+  const hasNumber = /\d/.test(password);
+  const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]/.test(password);
+
+  if (password.length < minLength) {
+    return {
+      isValid: false,
+      message: `A senha deve ter pelo menos ${minLength} caracteres`,
+    };
+  }
+  if (!hasUpperCase) {
+    return {
+      isValid: false,
+      message: "A senha deve conter pelo menos uma letra maiúscula",
+    };
+  }
+  if (!hasLowerCase) {
+    return {
+      isValid: false,
+      message: "A senha deve conter pelo menos uma letra minúscula",
+    };
+  }
+  if (!hasNumber) {
+    return {
+      isValid: false,
+      message: "A senha deve conter pelo menos um número",
+    };
+  }
+  if (!hasSymbol) {
+    return {
+      isValid: false,
+      message: "A senha deve conter pelo menos um símbolo (ex.: !@#$%)",
+    };
+  }
+
+  return { isValid: true, message: "" };
+};
+
+/**
  * @desc Registra um novo usuário
  * @route POST /api/auth/register
  */
 export const register = async (req: Request, res: Response): Promise<void> => {
-  const { name, email, password } = req.body;
+  const { name, email, password, phone, location, occupation, bio } = req.body;
 
+  // Validação de campos obrigatórios
   if (!name || !email || !password) {
-    res.status(400).json({ message: "Preencha todos os campos obrigatórios" });
+    res.status(400).json({ message: "Nome, email e senha são obrigatórios" });
     return;
   }
 
-  // Validação básica de senha
-  if (password.length < 8) {
-    res
-      .status(400)
-      .json({ message: "A senha deve ter pelo menos 8 caracteres" });
+  // Validação da senha
+  const passwordValidation = validatePassword(password);
+  if (!passwordValidation.isValid) {
+    res.status(400).json({ message: passwordValidation.message });
     return;
   }
 
@@ -56,12 +105,12 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12);
     const newUser = await db.one(
-      `INSERT INTO users(name, email, password, role, created_at)
-       VALUES($1, $2, $3, 'user', NOW())
-       RETURNING id, name, email, role, created_at AS createdAt`,
-      [name, email, hashedPassword]
+      `INSERT INTO users (name, email, password, phone, location, occupation, bio, role, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 'user', NOW())
+       RETURNING id, name, email, phone, location, occupation, bio, role, created_at AS createdAt`,
+      [name, email, hashedPassword, phone, location, occupation, bio]
     );
 
     res
@@ -73,7 +122,6 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       stack: error.stack,
     });
     if (error.code === "23505") {
-      // Violação de unicidade
       res.status(409).json({ message: "Email já registrado" });
     } else {
       res.status(500).json({ message: "Erro interno ao registrar usuário" });
@@ -89,7 +137,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    res.status(400).json({ message: "Preencha todos os campos obrigatórios" });
+    res.status(400).json({ message: "Email e senha são obrigatórios" });
     return;
   }
 
@@ -137,14 +185,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     });
     res.status(500).json({ message: "Erro interno ao fazer login" });
   }
-};
-
-/**
- * @desc Realiza logout (client-side)
- * @route POST /api/auth/logout
- */
-export const logout = (_req: Request, res: Response): void => {
-  res.status(200).json({ message: "Logout realizado com sucesso" });
 };
 
 /**
@@ -238,10 +278,10 @@ export const resetPassword = async (
     return;
   }
 
-  if (newPassword.length < 8) {
-    res
-      .status(400)
-      .json({ message: "A nova senha deve ter pelo menos 8 caracteres" });
+  // Validação da nova senha
+  const passwordValidation = validatePassword(newPassword);
+  if (!passwordValidation.isValid) {
+    res.status(400).json({ message: passwordValidation.message });
     return;
   }
 
@@ -259,7 +299,7 @@ export const resetPassword = async (
       return;
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
     await db.none(
       "UPDATE users SET password = $1, reset_token = NULL WHERE id = $2",
       [hashedPassword, user.id]
@@ -332,9 +372,14 @@ export const getUsers = async (
 
   try {
     const users = await db.any<User>(
-      `SELECT id, name, email, phone, location, occupation, bio, role, created_at AS createdAt
+      `SELECT id, name, email, role, created_at AS createdAt
        FROM users ORDER BY name ASC`
     );
+    if (users.length === 0) {
+      res.status(404).json({ message: "Nenhum usuário encontrado" });
+      return;
+    }
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.status(200).json(users);
   } catch (error: any) {
     console.error("Erro ao buscar usuários:", {
