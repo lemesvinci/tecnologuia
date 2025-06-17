@@ -64,6 +64,8 @@ const Users = () => {
   }, [isAuthenticated, user, navigate, t]);
 
   const formatDate = (dateString: string): string => {
+    if (!dateString) return t("users.dateUnavailable");
+
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) throw new Error("Data inválida");
@@ -181,25 +183,25 @@ const Users = () => {
                 role="row"
               >
                 <td
-                  className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100"
+                  className="px-6 py-4 whitespace-nowrap text-black dark:text-gray-100"
                   tabIndex={0}
                 >
                   {user.name}
                 </td>
                 <td
-                  className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100"
+                  className="px-6 py-4 whitespace-nowrap text-black dark:text-gray-100"
                   tabIndex={0}
                 >
                   {user.email}
                 </td>
                 <td
-                  className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100"
+                  className="px-6 py-4 whitespace-nowrap text-black dark:text-gray-100"
                   tabIndex={0}
                 >
                   {formatDate(user.createdAt)}
                 </td>
                 <td
-                  className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100"
+                  className="px-6 py-4 whitespace-nowrap text-black dark:text-gray-100"
                   tabIndex={0}
                 >
                   {user.role === "admin" ? t("users.admin") : t("users.user")}

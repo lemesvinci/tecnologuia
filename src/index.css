@@ -1,6 +1,5 @@
 /* frontend/src/index.css */
 
-/* Reset básico e configurações globais */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -12,10 +11,10 @@
 }
 
 :root {
-  /* Temas padrão (modo claro) */
   --background: #ffffff;
-  --text-primary: #000000;
-  --text-secondary: #4b5563;
+  --text-primary: #111111;
+  /* preto mais visível */
+  --text-secondary: #333333;
   --card-bg: #ffffff;
   --card-border: #e5e7eb;
   --accent-color: #3b82f6;
@@ -25,10 +24,9 @@
 }
 
 [data-theme="dark"] {
-  /* Temas para modo escuro */
   --background: #1f2937;
   --text-primary: #f9fafb;
-  --text-secondary: #9ca3af;
+  --text-secondary: #d1d5db;
   --card-bg: #2d3748;
   --card-border: #4b5563;
   --accent-color: #60a5fa;
@@ -37,7 +35,6 @@
   --hover-bg: #374151;
 }
 
-/* Configurações globais do body */
 body {
   background-color: var(--background);
   color: var(--text-primary);
@@ -45,13 +42,12 @@ body {
   transition: background-color 0.3s, color 0.3s;
 }
 
-/* Classes utilitárias personalizadas */
 .card {
   @apply bg-[var(--card-bg)] rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg border border-[var(--card-border)];
 }
 
 .glass {
-  @apply bg-[var(--card-bg)] border border-[var(--card-border)] dark:bg-[var(--card-bg)] dark:border-[var(--card-border)];
+  @apply bg-[var(--card-bg)] border border-[var(--card-border)];
 }
 
 .btn {
@@ -59,63 +55,42 @@ body {
 }
 
 .btn-primary {
-  @apply bg-[var(--accent-color)] text-white hover:bg-[color:var(--accent-color)-darken-10];
+  @apply bg-[var(--accent-color)] text-white hover:bg-blue-700;
 }
 
 .btn-danger {
-  @apply bg-[var(--error-color)] text-white hover:bg-[color:var(--error-color)-darken-10];
+  @apply bg-[var(--error-color)] text-white hover:bg-red-700;
 }
 
-/* Estilos para tabelas (ex.: Users.tsx) */
 table {
   @apply w-full divide-y divide-[var(--card-border)];
 }
 
 th {
-  @apply px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[var(--text-secondary)];
+  @apply px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-[var(--text-primary)];
 }
 
 td {
   @apply px-6 py-4 whitespace-nowrap text-[var(--text-primary)];
 }
 
-.dark th {
-  @apply text-[var(--text-secondary)];
-}
-
-.dark td {
-  @apply text-[var(--text-primary)];
-}
-
 tr:hover {
   @apply bg-[var(--hover-bg)];
 }
 
-.dark tr:hover {
-  @apply bg-[var(--hover-bg)];
-}
-
-/* Estilos para formulários (ex.: Comments.tsx) */
 textarea,
 input[type="text"] {
   @apply w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] text-[var(--text-primary)] bg-[var(--card-bg)] transition-all duration-200;
 }
 
-.dark textarea,
-.dark input[type="text"] {
-  @apply border-[var(--card-border)] text-[var(--text-primary)] bg-[var(--card-bg)];
-}
-
-/* Estilos para cabeçalhos e títulos */
 h1 {
-  @apply text-3xl font-bold;
+  @apply text-3xl font-bold text-[var(--text-primary)];
 }
 
 h2 {
-  @apply text-xl font-semibold;
+  @apply text-xl font-semibold text-[var(--text-primary)];
 }
 
-/* Estilos para mensagens de erro e sucesso */
 .error {
   @apply text-[var(--error-color)] mb-6;
 }
@@ -124,34 +99,18 @@ h2 {
   @apply text-[var(--success-color)] mb-6;
 }
 
-/* Estilos para links */
 a {
   @apply text-[var(--accent-color)] hover:underline;
 }
 
-.dark a {
-  @apply text-[var(--accent-color)] hover:underline;
-}
-
-/* Estilos para botões de ícone (ex.: Trash2) */
 .icon-btn {
-  @apply text-[var(--error-color)] hover:text-[color:var(--error-color)-darken-10] focus:outline-none focus:ring-2 focus:ring-[var(--error-color)] transition-colors duration-200;
+  @apply text-[var(--error-color)] hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-[var(--error-color)] transition-colors duration-200;
 }
 
-.dark .icon-btn {
-  @apply text-[var(--error-color)] hover:text-[color:var(--error-color)-darken-10];
-}
-
-/* Estilos para o layout geral */
 .max-w-7xl {
   @apply mx-auto px-4 sm:px-6 lg:px-8;
 }
 
-.py-12 {
-  @apply py-12;
-}
-
-/* Ajustes responsivos */
 @media (max-width: 640px) {
 
   th,
@@ -161,8 +120,6 @@ a {
 }
 
 @layer base {
-
-  /* Força a aplicação do tema escuro se necessário */
   html {
     @apply transition-colors duration-300;
   }

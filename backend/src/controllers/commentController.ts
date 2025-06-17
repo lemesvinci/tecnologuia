@@ -98,7 +98,7 @@ export const getComments = async (
   const { areaId } = req.query;
 
   if (!areaId || isNaN(Number(areaId))) {
-    res.status(400).json({ message: "ID da área inválido" });
+    res.status(404).json({ message: "ID da área inválido" });
     return;
   }
 
@@ -115,11 +115,11 @@ export const getComments = async (
         c.id, 
         c.content, 
         c.created_at AS "createdAt", 
-        c.user_id AS "userId", 
+        c.userid AS "userId", 
         c.area_id AS "areaId", 
         COALESCE(u.name, 'Usuário Desconhecido') AS "userName"
       FROM comments c
-      LEFT JOIN users u ON c.user_id = u.id
+      LEFT JOIN users u ON c.userid = u.id
       WHERE c.area_id = $1
       ORDER BY c.created_at DESC
     `,
@@ -172,13 +172,13 @@ export const createComment = async (
   try {
     const newComment = await db.one<Comment>(
       `
-      INSERT INTO comments(content, user_id, area_id, created_at)
+      INSERT INTO comments(content, userid, area_id, created_at)
       VALUES($1, $2, $3, NOW())
       RETURNING 
         id, 
         content, 
         created_at AS "createdAt", 
-        user_id AS "userId", 
+        userid AS "userId", 
         area_id AS "areaId",
         (SELECT COALESCE(name, 'Usuário Desconhecido') FROM users WHERE id = $2) AS "userName"
     `,
@@ -234,7 +234,7 @@ export const deleteComment = async (
 
   try {
     const comment = await db.oneOrNone<{ userId: number; areaId: number }>(
-      "SELECT user_id AS userId, area_id AS areaId FROM comments WHERE id = $1",
+      "SELECT userid AS userId, area_id AS areaId FROM comments WHERE id = $1",
       [commentId]
     );
 
