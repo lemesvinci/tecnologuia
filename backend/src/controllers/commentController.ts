@@ -112,18 +112,18 @@ export const getComments = async (
   try {
     const comments: Comment[] = await db.any(
       `
-      SELECT 
-        c.id, 
-        c.content, 
-        c.created_at AS "createdAt", 
-        c.userid AS "userId", 
-        c.area_id AS "areaId", 
-        COALESCE(u.name, 'Usuário Desconhecido') AS "user_name"
-      FROM comments c
-      LEFT JOIN users u ON c.userid = u.id
-      WHERE c.area_id = $1
-      ORDER BY c.created_at DESC
-    `,
+  SELECT 
+    c.id, 
+    c.content, 
+    c.createdat AS "createdAt", 
+    c.userid AS "userId", 
+    c.areaid AS "areaId", 
+    u.name AS "user_name"
+  FROM comments c
+  LEFT JOIN users u ON c.userid = u.id
+  WHERE c.areaid = $1
+  ORDER BY c.createdat DESC
+  `,
       [areaIdNum]
     );
 
