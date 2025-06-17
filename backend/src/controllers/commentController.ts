@@ -22,7 +22,7 @@ interface Comment {
   userId: number;
   areaId: number;
   createdAt: string;
-  userName: string;
+  user_name: string;
 }
 
 // Formata data para o formato do frontend (DD/MM/YYYY HH:mm)

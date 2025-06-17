@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserPlus, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
-import { useTranslation } from "react-i18next";
 
 interface FormData {
   name: string;
@@ -23,7 +22,6 @@ interface FormErrors {
 const Register = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
-  const { t } = useTranslation();
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
@@ -40,31 +38,28 @@ const Register = () => {
     let isValid = true;
 
     if (!formData.name.trim()) {
-      newErrors.name = t("users.nameRequired") || "Nome é obrigatório";
+      newErrors.name = "Nome é obrigatório";
       isValid = false;
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = t("users.emailRequired") || "Email é obrigatório";
+      newErrors.email = "Email é obrigatório";
       isValid = false;
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = t("users.invalidEmail") || "Email inválido";
+      newErrors.email = "Email inválido";
       isValid = false;
     }
 
     if (!formData.password.trim()) {
-      newErrors.password = t("users.passwordRequired") || "Senha é obrigatória";
+      newErrors.password = "Senha é obrigatória";
       isValid = false;
     } else if (formData.password.length < 6) {
-      newErrors.password =
-        t("users.passwordMinLength") ||
-        "A senha deve ter pelo menos 6 caracteres";
+      newErrors.password = "A senha deve ter pelo menos 6 caracteres";
       isValid = false;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword =
-        t("users.passwordMismatch") || "As senhas não coincidem";
+      newErrors.confirmPassword = "As senhas não coincidem";
       isValid = false;
     }
 
@@ -91,9 +86,7 @@ const Register = () => {
       navigate("/");
     } catch (error) {
       setErrors({
-        general:
-          t("users.registrationFailure") ||
-          "Falha no cadastro. Por favor, tente novamente.",
+        general: "Falha no cadastro. Por favor, tente novamente.",
       });
     } finally {
       setIsLoading(false);
@@ -109,11 +102,9 @@ const Register = () => {
 
       <div className="relative z-10 max-w-md w-full bg-white bg-opacity-90 rounded-xl p-8 shadow-xl space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">
-            {t("users.registerTitle") || "Crie sua conta"}
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900">Crie sua conta</h1>
           <p className="text-gray-600 text-sm mt-1">
-            {t("users.joinCommunity") || "Junte-se à comunidade Tecnologuia"}
+            Junte-se à comunidade Tecnologuia
           </p>
         </div>
 
@@ -131,7 +122,7 @@ const Register = () => {
               htmlFor="name"
               className="block text-sm font-medium text-gray-700"
             >
-              {t("users.name") || "Nome completo"}
+              Nome completo
             </label>
             <input
               id="name"
@@ -139,7 +130,7 @@ const Register = () => {
               type="text"
               value={formData.name}
               onChange={handleChange}
-              placeholder={t("users.namePlaceholder") || "Seu nome"}
+              placeholder="Seu nome"
               className="w-full mt-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
@@ -154,7 +145,7 @@ const Register = () => {
               htmlFor="email"
               className="block text-sm font-medium text-gray-700"
             >
-              {t("users.email") || "Email"}
+              Email
             </label>
             <input
               id="email"
@@ -162,7 +153,7 @@ const Register = () => {
               type="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder={t("users.emailPlaceholder") || "seu@email.com"}
+              placeholder="seu@email.com"
               className="w-full mt-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
@@ -177,7 +168,7 @@ const Register = () => {
               htmlFor="password"
               className="block text-sm font-medium text-gray-700"
             >
-              {t("users.password") || "Senha"}
+              Senha
             </label>
             <div className="relative">
               <input
@@ -186,7 +177,7 @@ const Register = () => {
                 type={showPassword ? "text" : "password"}
                 value={formData.password}
                 onChange={handleChange}
-                placeholder={t("users.passwordPlaceholder") || "••••••••"}
+                placeholder="••••••••"
                 className="w-full mt-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
                 required
               />
@@ -209,7 +200,7 @@ const Register = () => {
               htmlFor="confirmPassword"
               className="block text-sm font-medium text-gray-700"
             >
-              {t("users.confirmPassword") || "Confirmar senha"}
+              Confirmar senha
             </label>
             <div className="relative">
               <input
@@ -218,9 +209,7 @@ const Register = () => {
                 type={showConfirmPassword ? "text" : "password"}
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                placeholder={
-                  t("users.confirmPasswordPlaceholder") || "••••••••"
-                }
+                placeholder="••••••••"
                 className="w-full mt-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
                 required
               />
@@ -249,13 +238,13 @@ const Register = () => {
               className="mt-1 mr-2 h-4 w-4 text-blue-600 border-gray-300 rounded"
             />
             <label htmlFor="terms">
-              {t("users.termsAgreement") || "Concordo com os"}{" "}
+              Concordo com os{" "}
               <a href="#" className="text-blue-600 hover:underline">
-                {t("users.termsOfUse") || "Termos de Uso"}
+                Termos de Uso
               </a>{" "}
-              {t("users.and") || "e"}{" "}
+              e{" "}
               <a href="#" className="text-blue-600 hover:underline">
-                {t("users.privacyPolicy") || "Política de Privacidade"}
+                Política de Privacidade
               </a>
               .
             </label>
@@ -268,16 +257,16 @@ const Register = () => {
             className="w-full bg-blue-600 text-white py-3 rounded-lg flex justify-center items-center gap-2 hover:bg-blue-700 transition"
           >
             <UserPlus size={18} />
-            {t("users.createAccount") || "Criar conta"}
+            Criar conta
           </button>
 
           <p className="text-center text-sm text-gray-600 mt-4">
-            {t("users.alreadyHaveAccount") || "Já tem uma conta?"}{" "}
+            Já tem uma conta?{" "}
             <Link
               to="/login"
               className="text-blue-600 hover:underline font-medium"
             >
-              {t("users.loginLink") || "Faça login"}
+              Faça login
             </Link>
           </p>
         </form>

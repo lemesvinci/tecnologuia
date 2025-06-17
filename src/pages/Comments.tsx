@@ -19,7 +19,7 @@ interface Comment {
   id: number;
   content: string;
   createdAt: string;
-  userName: string;
+  user_name: string;
   userId?: number;
   areaId: number;
 }
@@ -407,7 +407,7 @@ const Comments = () => {
                         } ${accessibilityOptions.largeText ? "text-lg" : ""}`}
                         tabIndex={0}
                       >
-                        {comment.userName || t("comments.unknownUser")}
+                        {comment.user_name || t("comments.unknownUser")}
                       </h4>
                       <p
                         className={`text-sm ${
